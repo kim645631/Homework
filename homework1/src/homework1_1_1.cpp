@@ -12,5 +12,5 @@ int main() {
         cout << "(" << m << ", " << n << ") = " << ack(m, n) << endl;
         cout << "輸入 m 和 n : ";
     }
-    return 0;
+    return 0
 }
