@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring> // for memset
+using namespace std;
 
 int ackermann(int m, int n) {
     // 設定一個足夠大的 stack 來模擬遞迴
@@ -15,10 +16,12 @@ int ackermann(int m, int n) {
                 return n + 1;
             }
             n = n + 1;
-        } else if (n == 0) {
+        }
+        else if (n == 0) {
             stack[top++] = m - 1;
             n = 1;
-        } else {
+        }
+        else {
             stack[top++] = m - 1;
             stack[top++] = m;
             n = n - 1;
@@ -29,8 +32,10 @@ int ackermann(int m, int n) {
 
 int main() {
     int m, n;
-    std::cout << "Enter m and n: ";
-    std::cin >> m >> n;
-    std::cout << "Ackermann(" << m << ", " << n << ") = " << ackermann(m, n) << std::endl;
+    cout << "輸入 m 和 n :  ";
+    while (cin >> m >> n) {
+        cout << "(" << m << ", " << n << ") = " << ackermann(m, n) << endl;
+        cout << "輸入 m 和 n : ";
+    }
     return 0;
 }
