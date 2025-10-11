@@ -33,5 +33,5 @@ int main() {
     delete[] A;
     delete[] s;
 
-    return 0
+    return 0;
 }
