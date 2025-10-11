@@ -83,8 +83,10 @@ int ackermann(int m, int n) {
 int main() {
     int m, n;
     cout << "輸入 m 和 n :  ";
-    cin >> m >> n;
-    cout << "Ackermann(" << m << ", " << n << ") = " << ackermann(m, n) << std::endl;
+    while (cin >> m >> n) {
+        cout << "(" << m << ", " << n << ") = " << ack(m, n) << endl;
+        cout << "輸入 m 和 n : ";
+    }
     return 0;
 }
 ```
