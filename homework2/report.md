@@ -43,11 +43,11 @@ public:
             termArray[i] = poly.termArray[i];
     }
 
-    void NewTerm(float c, int e) {
+    void NewTerm(float newCoef, int newExp) {
         if (c == 0) return;
         for (int i = 0; i < terms; i++) {
-            if (termArray[i].exp == e) {
-                termArray[i].coef += c;
+            if (termArray[i].exp == newExp) {
+                termArray[i].coef += newCoef;
                 if (termArray[i].coef == 0) {
                     for (int j = i; j < terms - 1; j++)
                         termArray[j] = termArray[j + 1];
@@ -64,8 +64,8 @@ public:
             delete[] termArray;
             termArray = temp;
         }
-        termArray[terms].coef = c;
-        termArray[terms].exp = e;
+        termArray[terms].coef = newCoef;
+        termArray[terms].exp = newExp;
         terms++;
 
         for (int i = 0; i < terms - 1; i++) {
@@ -219,7 +219,7 @@ P1(2) = 17
 ```
 ## 申論及開發報告
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
-## 作業二 之Polynomial 1
+## 作業二 之Polynomial 2
 ## 解題說明
 ## 程式實作
 ### IDE:
