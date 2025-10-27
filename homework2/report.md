@@ -78,27 +78,27 @@ public:
 
     Polynomial Add(Polynomial poly) {
         Polynomial result;
-        int aPos = 0, bPos = 0;
-        while (aPos < terms && bPos < poly.terms) {
-            if (termArray[aPos].exp == poly.termArray[bPos].exp) {
-                float sum = termArray[aPos].coef + poly.termArray[bPos].coef;
+        int a = 0, b = 0;
+        while (a < terms && b < poly.terms) {
+            if (termArray[a].exp == poly.termArray[b].exp) {
+                float sum = termArray[a].coef + poly.termArray[b].coef;
                 if (sum != 0)
-                    result.NewTerm(sum, termArray[aPos].exp);
-                aPos++; bPos++;
+                    result.NewTerm(sum, termArray[a].exp);
+                a++; b++;
             }
-            else if (termArray[aPos].exp > poly.termArray[bPos].exp) {
-                result.NewTerm(termArray[aPos].coef, termArray[aPos].exp);
-                aPos++;
+            else if (termArray[a].exp > poly.termArray[b].exp) {
+                result.NewTerm(termArray[a].coef, termArray[a].exp);
+                a++;
             }
             else {
-                result.NewTerm(poly.termArray[bPos].coef, poly.termArray[bPos].exp);
-                bPos++;
+                result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
+                b++;
             }
         }
-        for (; aPos < terms; aPos++)
-            result.NewTerm(termArray[aPos].coef, termArray[aPos].exp);
-        for (; bPos < poly.terms; bPos++)
-            result.NewTerm(poly.termArray[bPos].coef, poly.termArray[bPos].exp);
+        for (; a < terms; a++)
+            result.NewTerm(termArray[a].coef, termArray[a].exp);
+        for (; b < poly.terms; b++)
+            result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
         return result;
     }
 
@@ -156,23 +156,23 @@ public:
 };
 
 int main() {
-    Polynomial p1, p2;
-    p1.NewTerm(6, 5);
-    p1.NewTerm(4, 3);
-    p1.NewTerm(3, 0);
-    p2.NewTerm(2, 3);
-    p2.NewTerm(2, 3);
+    Polynomial A, B;
+    A.NewTerm(6, 5);
+    A.NewTerm(4, 3);
+    A.NewTerm(3, 0);
+    B.NewTerm(2, 3);
+    B.NewTerm(2, 3);
 
-    cout << "P1(x) = "; p1.Show();
-    cout << "P2(x) = "; p2.Show();
+    cout << "P1(x) = "; A.Show();
+    cout << "P2(x) = "; B.Show();
 
-    Polynomial sum = p1.Add(p2);
+    Polynomial sum = A.Add(B);
     cout << "Sum = "; sum.Show();
 
-    Polynomial product = p1.Mult(p2);
+    Polynomial product = A.Mult(B);
     cout << "Product = "; product.Show();
 
-    cout << "P1(3) = " << p1.Eval(3) << endl;
+    cout << "P1(3) = " << A.Eval(3) << endl;
     return 0;
 }
 ```
