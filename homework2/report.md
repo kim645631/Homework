@@ -187,26 +187,27 @@ int main() {
 |          |        3, 0    |    6x^5 + 4x^3 + 3       |    6x^5 + 4x^3 + 3      |  
 | 測試二  |      2, 3    |             |         |       
 |          |       2, 3    |       4x^3     |   4x^3      | 
-|   $p1(x)$  +    $p2(x)$     |    |  6x^5 + 8x^3 + 3       | 6x^5 + 8x^3 + 3         |   
-|   $p1(x)$ * $p2(x)$     |   |  24x^8 + 16x^6 + 12x^3       |   24x^8 + 16x^6 + 12x^3              |
-|   $p1(3)$      |  | 1569    |   1569   |
+|   $A(x)$  +    $B(x)$     |    |  6x^5 + 8x^3 + 3       | 6x^5 + 8x^3 + 3         |   
+|   $A(x)$ * $B(x)$     |   |  24x^8 + 16x^6 + 12x^3       |   24x^8 + 16x^6 + 12x^3              |
+|   $A(3)$      |  | 1569    |   1569   |
 #### 測試輸入
 ```cpp
-p1.NewTerm(6, 5);  
-p1.NewTerm(4, 3);  
-p1.NewTerm(3, 0);  
-p2.NewTerm(2, 3);  
-p2.NewTerm(2, 3);  
+A.NewTerm(6, 5);  
+A.NewTerm(4, 3);  
+A.NewTerm(3, 0);  
+B.NewTerm(2, 3);  
+B.NewTerm(2, 3);  
 ```
 #### 測試輸出
 ```shell
-P1(x) = 6x^5 + 4x^3 + 3
-P2(x) = 4x^3
+A(x) = 6x^5 + 4x^3 + 3
+B(x) = 4x^3
 Sum = 6x^5 + 8x^3 + 3
 Product = 24x^8 + 16x^6 + 12x^3
-P1(3) = 1569
+A(3) = 1569
 ```
 ## 申論及開發報告
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## 作業二 之Polynomial 2
 ## 解題說明
@@ -216,19 +217,22 @@ Microsoft Visual Studio Code C/C++
 ```cpp
 #include <iostream>
 #include <cmath>
-#include <algorithm>
 using namespace std;
 
 class Polynomial;
 
 class Term {
     friend class Polynomial;
+    friend ostream& operator<<(ostream&, const Polynomial&);
 private:
     float coef;
     int exp;
 };
 
 class Polynomial {
+    friend istream& operator>>(istream& in, Polynomial& poly);
+    friend ostream& operator<<(ostream& out, const Polynomial& poly);
+
 private:
     Term* termArray;
     int capacity;
@@ -284,27 +288,27 @@ public:
 
     Polynomial Add(Polynomial poly) {
         Polynomial result;
-        int aPos = 0, bPos = 0;
-        while (aPos < terms && bPos < poly.terms) {
-            if (termArray[aPos].exp == poly.termArray[bPos].exp) {
-                float sum = termArray[aPos].coef + poly.termArray[bPos].coef;
+        int a = 0, b = 0;
+        while (a < terms && b < poly.terms) {
+            if (termArray[a].exp == poly.termArray[b].exp) {
+                float sum = termArray[a].coef + poly.termArray[b].coef;
                 if (sum != 0)
-                    result.NewTerm(sum, termArray[aPos].exp);
-                aPos++; bPos++;
+                    result.NewTerm(sum, termArray[a].exp);
+                a++; b++;
             }
-            else if (termArray[aPos].exp > poly.termArray[bPos].exp) {
-                result.NewTerm(termArray[aPos].coef, termArray[aPos].exp);
-                aPos++;
+            else if (termArray[a].exp > poly.termArray[b].exp) {
+                result.NewTerm(termArray[a].coef, termArray[a].exp);
+                a++;
             }
             else {
-                result.NewTerm(poly.termArray[bPos].coef, poly.termArray[bPos].exp);
-                bPos++;
+                result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
+                b++;
             }
         }
-        for (; aPos < terms; aPos++)
-            result.NewTerm(termArray[aPos].coef, termArray[aPos].exp);
-        for (; bPos < poly.terms; bPos++)
-            result.NewTerm(poly.termArray[bPos].coef, poly.termArray[bPos].exp);
+        for (; a < terms; a++)
+            result.NewTerm(termArray[a].coef, termArray[a].exp);
+        for (; b < poly.terms; b++)
+            result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
         return result;
     }
 
@@ -328,94 +332,108 @@ public:
             result += termArray[i].coef * pow(f, termArray[i].exp);
         return result;
     }
+};
 
-   
+    istream& operator>>(istream& in, Polynomial& poly) {
+        int n;
+        cout << "Enter number of terms: ";
+        in >> n;
 
-int main() {
-    Polynomial a, b;
+        poly.terms = 0;
 
-    cout << "多項式 a(x):" << endl;
-    cin >> a;
-    cout << "\n多項式 b(x):" << endl;
-    cin >> b;
+        for (int i = 0; i < n; i++) {
+            float c;
+            int e;
+            cout << "Enter coefficient and exponent for term " << i + 1 << ": ";
+            in >> c >> e;
+            poly.NewTerm(c, e);
+        }
 
-    cout << "\na(x) = " << a << endl;
-    cout << "b(x) = " << b << endl;
+        return in;
+    }
+    ostream& operator<<(ostream& out, const Polynomial& poly) {
+        if (poly.terms == 0) {
+            out << "0";
+            return out;
+        }
 
-    cout << "\na + b = " << a + b << endl;
-    cout << "a * b = " << a * b << endl;
+        for (int i = 0; i < poly.terms; i++) {
+            float c = poly.termArray[i].coef;
+            int e = poly.termArray[i].exp;
 
-    float x;
-    cout << "\n要代入的 x ：";
-    cin >> x;
-    cout << "a(" << x << ") = " << a(x) << endl;
-    cout << "b(" << x << ") = " << b(x) << endl;
+            if (i > 0) {
+                if (c >= 0) out << " + ";
+                else { out << " - "; c = -c; }
+            }
+            else if (c < 0) {
+                out << "-";
+                c = -c;
+            }
 
-    return 0;
-}
+            if (e == 0)
+                out << c;
+            else if (e == 1)
+                out << c << "x";
+            else
+                out << c << "x^" << e;
+        }
 
+        return out;
+    }
+
+    int main() {
+        Polynomial A,B;
+
+        cin >> A;
+        cin >> B;
+        Polynomial sum = A.Add(B);
+        Polynomial prod = A.Mult(B);
+        float x;
+        cout << "Enter x value: ";
+        cin >> x;
+        cout << "\nA(x) = " << A << endl;
+        cout << "B(x) = " << B << endl;
+        cout << "Sum = " << sum << endl;
+        cout << "Product = " << prod << endl;
+
+        cout << "p(" << x << ") = " << A.Eval(x) << endl;
+
+        return 0;
+    }
 ```
 ## 效能分析
 
 ## 測試與驗證
-| 測試案例 | 輸入參數 $p1(x)$  | 預期輸出P1(x)  | 實際輸出 P1(x) | 
+| 測試案例 | 輸入參數   | 預期輸出  | 實際輸出  | 
 |----------|--------------|----------|----------|
-| 測試一   |      3, 2     |             |         |       
-|          |        2, 1    |            |        |  
-|          |        1, 0    |    3x^2 + 2x + 1        |    3x^2 + 2x + 1      |  
-
-| 測試案例 | 輸入參數 $p2(x)$  | 預期輸出P2(x)  | 實際輸出 P2(x) | 
-|----------|--------------|----------|----------|
-| 測試二  |      1, 1    |             |         |       
-|          |       1, 1    |      2x      |  2x      | 
-
-| 測試案例 |   預期輸出$p1(x)$ +    $p2(x)$  | 實際輸出 $p1(x)$ +    $p2(x)$ | 
-|----------|----------|----------|
-|   $p1(x)$ +    $p2(x)$     |    3x^2 + 4x + 1         |  3x^2 + 4x + 1       |   
-
-| 測試案例 |   預期輸出$p1(x)$ * $p2(x)$  | 實際輸出 $p1(x)$ * $p2(x)$ | 
-|----------|----------|----------|
-|   $p1(x)$ * $p2(x)$     |    6x^3 + 4x^2 + 2x       |  6x^3 + 4x^2 + 2x       |   
-
-| 測試案例 |   預期輸出$p1(2)$  | 實際輸出 $p1(2)$ | 
-|----------|----------|----------|
-|   $p1(2)$      |   17    | 17     |  
-### 輸入
-
-多項式 a(x):
-
-    3
-
-    2 3
-
-    2 2
-
-    4 1
-
-多項式 b(x):
-
-    2
-
-    3 1
-
-    4 0
-    
-要代入x ：
-      
-    2
-
-### 則輸出
-
-    a(x) = 2x^3 + 2x^2 + 4x^1
-
-    b(x) = 3x^1 + 4
-
-    a + b = 2x^3 + 2x^2 + 7x^1 + 4
-
-    a * b = 6x^4 + 14x^3 + 20x^2 + 16x^1
-
-    a(2) = 32
-
-    b(2) = 10
+| 測試一   |      3     |             |         |       
+|          |        3, 2    |            |        | 
+|          |        2,1     |            |        |
+|          |        1, 0    |    3x^2 + 2x + 1       |    3x^2 + 2x + 1      |  
+| 測試二  |      2    |             |         |       
+|          |       2, 5    |            |        | 
+|          |       3, 1    |       2x^5 + 3x    |   2x^5 + 3x     |
+|   $A(x)$  +    $B(x)$     |    |  2x^5 + 3x^2 + 5x + 1       | 2x^5 + 3x^2 + 5x + 1        |   
+|   $A(x)$ * $B(x)$     |   |  6x^7 + 4x^6 + 2x^5 + 9x^3 + 6x^2 + 3x       |   6x^7 + 4x^6 + 2x^5 + 9x^3 + 6x^2 + 3x              |
+|   $A(2)$      |  | 17    |   17  |
+#### 測試輸入
+```cpp
+Enter number of terms: 3
+Enter coefficient and exponent for term 1: 3 2
+Enter coefficient and exponent for term 2: 2 1
+Enter coefficient and exponent for term 3: 1 0
+Enter number of terms: 2
+Enter coefficient and exponent for term 1: 2 5
+Enter coefficient and exponent for term 2: 3 1
+Enter x value: 2 
+```
+#### 測試輸出
+```shell
+A(x) = 3x^2 + 2x + 1
+B(x) = 2x^5 + 3x
+Sum = 2x^5 + 3x^2 + 5x + 1
+Product = 6x^7 + 4x^6 + 2x^5 + 9x^3 + 6x^2 + 3x
+p(2) = 17
+```
 
 ## 申論及開發報告
