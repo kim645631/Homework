@@ -35,15 +35,53 @@ public:
         termArray = new Term[capacity];
     }
 
-    Polynomial(const Polynomial& poly) {
-        capacity = poly.capacity;
-        terms = poly.terms;
-        termArray = new Term[capacity];
-        for (int i = 0; i < terms; i++)
-            termArray[i] = poly.termArray[i];
+    Polynomial Add(Polynomial Poly) {
+        Polynomial result;
+        int a = 0, b = 0;
+        while (a < terms && b < Poly.terms) {
+            if (termArray[a].exp == Poly.termArray[b].exp) {
+                float sum = termArray[a].coef + Poly.termArray[b].coef;
+                if (sum != 0)
+                    result.Newterms(sum, termArray[a].exp);
+                a++; b++;
+            }
+            else if (termArray[a].exp > Poly.termArray[b].exp) {
+                result.Newterms(termArray[a].coef, termArray[a].exp);
+                a++;
+            }
+            else {
+                result.Newterms(Poly.termArray[b].coef, Poly.termArray[b].exp);
+                b++;
+            }
+        }
+        for (; a < terms; a++)
+            result.Newterms(termArray[a].coef, termArray[a].exp);
+        for (; b < Poly.terms; b++)
+            result.Newterms(Poly.termArray[b].coef, Poly.termArray[b].exp);
+        return result;
     }
 
-    void NewTerm(float newCoef, int newExp) {
+    Polynomial Mult(Polynomial Poly) {
+        Polynomial result;
+        for (int i = 0; i < terms; i++) {
+            Polynomial temp;
+            for (int j = 0; j < Poly.terms; j++) {
+                float newCoef = termArray[i].coef * Poly.termArray[j].coef;
+                int newExp = termArray[i].exp + Poly.termArray[j].exp;
+                temp.Newterms(newCoef, newExp);
+            }
+            result = result.Add(temp);
+        }
+        return result;
+    }
+
+    float Eval(float Float) {
+        float result = 0;
+        for (int i = 0; i < terms; i++)
+            result += termArray[i].coef * pow(Float, termArray[i].exp);
+        return result;
+    }
+    void Newterms(float newCoef, int newExp) {
         if (newCoef == 0) return;
         for (int i = 0; i < terms; i++) {
             if (termArray[i].exp == newExp) {
@@ -75,81 +113,33 @@ public:
             }
         }
     }
-
-    Polynomial Add(Polynomial poly) {
-        Polynomial result;
-        int a = 0, b = 0;
-        while (a < terms && b < poly.terms) {
-            if (termArray[a].exp == poly.termArray[b].exp) {
-                float sum = termArray[a].coef + poly.termArray[b].coef;
-                if (sum != 0)
-                    result.NewTerm(sum, termArray[a].exp);
-                a++; b++;
-            }
-            else if (termArray[a].exp > poly.termArray[b].exp) {
-                result.NewTerm(termArray[a].coef, termArray[a].exp);
-                a++;
-            }
-            else {
-                result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
-                b++;
-            }
-        }
-        for (; a < terms; a++)
-            result.NewTerm(termArray[a].coef, termArray[a].exp);
-        for (; b < poly.terms; b++)
-            result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
-        return result;
-    }
-
-    Polynomial Mult(Polynomial poly) {
-        Polynomial result;
-        for (int i = 0; i < terms; i++) {
-            Polynomial temp;
-            for (int j = 0; j < poly.terms; j++) {
-                float newCoef = termArray[i].coef * poly.termArray[j].coef;
-                int newExp = termArray[i].exp + poly.termArray[j].exp;
-                temp.NewTerm(newCoef, newExp);
-            }
-            result = result.Add(temp);
-        }
-        return result;
-    }
-
-    float Eval(float f) {
-        float result = 0;
-        for (int i = 0; i < terms; i++)
-            result += termArray[i].coef * pow(f, termArray[i].exp);
-        return result;
-    }
-
-    void Show() {
+    void Exhibit() {
         if (terms == 0) {
             cout << "0" << endl;
             return;
         }
         for (int i = 0; i < terms; i++) {
-            float c = termArray[i].coef;
-            int e = termArray[i].exp;
+            float Coef = termArray[i].coef;
+            int Exp = termArray[i].exp;
             if (i > 0) {
-                if (c >= 0) cout << " + ";
+                if (Coef >= 0) cout << " + ";
                 else {
                     cout << " - ";
-                    c = -c;
+                    Coef = -Coef;
                 }
             }
             else {
-                if (c < 0) {
+                if (Coef < 0) {
                     cout << "-";
-                    c = -c;
+                    Coef = -Coef;
                 }
             }
-            if (e == 0)
-                cout << c;
-            else if (e == 1)
-                cout << c << "x";
+            if (Exp == 0)
+                cout << Coef;
+            else if (Exp == 1)
+                cout << Coef << "x";
             else
-                cout << c << "x^" << e;
+                cout << Coef << "x^" << Exp;
         }
         cout << endl;
     }
@@ -157,22 +147,22 @@ public:
 
 int main() {
     Polynomial A, B;
-    A.NewTerm(6, 5);
-    A.NewTerm(4, 3);
-    A.NewTerm(3, 0);
-    B.NewTerm(2, 3);
-    B.NewTerm(2, 3);
+    A.Newterms(6, 5);
+    A.Newterms(4, 3);
+    A.Newterms(3, 0);
+    B.Newterms(2, 3);
+    B.Newterms(2, 3);
 
-    cout << "P1(x) = "; A.Show();
-    cout << "P2(x) = "; B.Show();
+    cout << "A(x) = "; A.Exhibit();
+    cout << "B(x) = "; B.Exhibit();
 
     Polynomial sum = A.Add(B);
-    cout << "Sum = "; sum.Show();
+    cout << "Sum = "; sum.Exhibit();
 
     Polynomial product = A.Mult(B);
-    cout << "Product = "; product.Show();
+    cout << "Product = "; product.Exhibit();
 
-    cout << "P1(3) = " << A.Eval(3) << endl;
+    cout << "A(3) = " << A.Eval(3) << endl;
     return 0;
 }
 ```
@@ -192,11 +182,11 @@ int main() {
 |   $A(3)$      |  | 1569    |   1569   |
 #### 測試輸入
 ```cpp
-A.NewTerm(6, 5);  
-A.NewTerm(4, 3);  
-A.NewTerm(3, 0);  
-B.NewTerm(2, 3);  
-B.NewTerm(2, 3);  
+A.Newterms(6, 5);
+A.Newterms(4, 3);
+A.Newterms(3, 0);
+B.Newterms(2, 3);
+B.Newterms(2, 3);
 ```
 #### 測試輸出
 ```shell
@@ -230,9 +220,8 @@ private:
 };
 
 class Polynomial {
-    friend istream& operator>>(istream& in, Polynomial& poly);
-    friend ostream& operator<<(ostream& out, const Polynomial& poly);
-
+    friend ostream& operator<<(ostream& out, const Polynomial& Poly);
+    friend istream& operator>>(istream& in, Polynomial& Poly);
 private:
     Term* termArray;
     int capacity;
@@ -245,15 +234,53 @@ public:
         termArray = new Term[capacity];
     }
 
-    Polynomial(const Polynomial& poly) {
-        capacity = poly.capacity;
-        terms = poly.terms;
-        termArray = new Term[capacity];
-        for (int i = 0; i < terms; i++)
-            termArray[i] = poly.termArray[i];
+    Polynomial Add(Polynomial Poly) {
+        Polynomial result;
+        int a = 0, b = 0;
+        while (a < terms && b < Poly.terms) {
+            if (termArray[a].exp == Poly.termArray[b].exp) {
+                float sum = termArray[a].coef + Poly.termArray[b].coef;
+                if (sum != 0)
+                    result.Newterms(sum, termArray[a].exp);
+                a++; b++;
+            }
+            else if (termArray[a].exp > Poly.termArray[b].exp) {
+                result.Newterms(termArray[a].coef, termArray[a].exp);
+                a++;
+            }
+            else {
+                result.Newterms(Poly.termArray[b].coef, Poly.termArray[b].exp);
+                b++;
+            }
+        }
+        for (; a < terms; a++)
+            result.Newterms(termArray[a].coef, termArray[a].exp);
+        for (; b < Poly.terms; b++)
+            result.Newterms(Poly.termArray[b].coef, Poly.termArray[b].exp);
+        return result;
     }
 
-    void NewTerm(float newCoef, int newExp) {
+    Polynomial Mult(Polynomial Poly) {
+        Polynomial result;
+        for (int i = 0; i < terms; i++) {
+            Polynomial temp;
+            for (int j = 0; j < Poly.terms; j++) {
+                float newCoef = termArray[i].coef * Poly.termArray[j].coef;
+                int newExp = termArray[i].exp + Poly.termArray[j].exp;
+                temp.Newterms(newCoef, newExp);
+            }
+            result = result.Add(temp);
+        }
+        return result;
+    }
+
+    float Eval(float Float) {
+        float result = 0;
+        for (int i = 0; i < terms; i++)
+            result += termArray[i].coef * pow(Float, termArray[i].exp);
+        return result;
+    }
+    void Newterms(float newCoef, int newExp) {
         if (newCoef == 0) return;
         for (int i = 0; i < terms; i++) {
             if (termArray[i].exp == newExp) {
@@ -285,121 +312,76 @@ public:
             }
         }
     }
-
-    Polynomial Add(Polynomial poly) {
-        Polynomial result;
-        int a = 0, b = 0;
-        while (a < terms && b < poly.terms) {
-            if (termArray[a].exp == poly.termArray[b].exp) {
-                float sum = termArray[a].coef + poly.termArray[b].coef;
-                if (sum != 0)
-                    result.NewTerm(sum, termArray[a].exp);
-                a++; b++;
-            }
-            else if (termArray[a].exp > poly.termArray[b].exp) {
-                result.NewTerm(termArray[a].coef, termArray[a].exp);
-                a++;
-            }
-            else {
-                result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
-                b++;
-            }
-        }
-        for (; a < terms; a++)
-            result.NewTerm(termArray[a].coef, termArray[a].exp);
-        for (; b < poly.terms; b++)
-            result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
-        return result;
-    }
-
-    Polynomial Mult(Polynomial poly) {
-        Polynomial result;
-        for (int i = 0; i < terms; i++) {
-            Polynomial temp;
-            for (int j = 0; j < poly.terms; j++) {
-                float newCoef = termArray[i].coef * poly.termArray[j].coef;
-                int newExp = termArray[i].exp + poly.termArray[j].exp;
-                temp.NewTerm(newCoef, newExp);
-            }
-            result = result.Add(temp);
-        }
-        return result;
-    }
-
-    float Eval(float f) {
-        float result = 0;
-        for (int i = 0; i < terms; i++)
-            result += termArray[i].coef * pow(f, termArray[i].exp);
-        return result;
-    }
 };
 
-    istream& operator>>(istream& in, Polynomial& poly) {
-        int n;
-        cout << "Enter number of terms: ";
-        in >> n;
+istream& operator>>(istream& In, Polynomial& Poly) {
+    int n;
+    cout << "輸入次數: ";
+    In >> n;
 
-        poly.terms = 0;
+    Poly.terms = 0;
 
-        for (int i = 0; i < n; i++) {
-            float c;
-            int e;
-            cout << "Enter coefficient and exponent for term " << i + 1 << ": ";
-            in >> c >> e;
-            poly.NewTerm(c, e);
-        }
-
-        return in;
-    }
-    ostream& operator<<(ostream& out, const Polynomial& poly) {
-        if (poly.terms == 0) {
-            out << "0";
-            return out;
-        }
-
-        for (int i = 0; i < poly.terms; i++) {
-            float c = poly.termArray[i].coef;
-            int e = poly.termArray[i].exp;
-
-            if (i > 0) {
-                if (c >= 0) out << " + ";
-                else { out << " - "; c = -c; }
-            }
-            else if (c < 0) {
-                out << "-";
-                c = -c;
-            }
-
-            if (e == 0)
-                out << c;
-            else if (e == 1)
-                out << c << "x";
-            else
-                out << c << "x^" << e;
-        }
-
-        return out;
+    for (int i = 0; i < n; i++) {
+        float Coef;
+        int Exp;
+        cout << "輸入第"<< i + 1<<"項的係數和指數 "  << ": ";
+        In >> Coef >> Exp;
+        Poly.Newterms(Coef, Exp);
     }
 
-    int main() {
-        Polynomial A,B;
-
-        cin >> A;
-        cin >> B;
-        Polynomial sum = A.Add(B);
-        Polynomial prod = A.Mult(B);
-        float x;
-        cout << "Enter x value: ";
-        cin >> x;
-        cout << "\nA(x) = " << A << endl;
-        cout << "B(x) = " << B << endl;
-        cout << "Sum = " << sum << endl;
-        cout << "Product = " << prod << endl;
-
-        cout << "p(" << x << ") = " << A.Eval(x) << endl;
-
-        return 0;
+    return In;
+}
+ostream& operator<<(ostream& Out, const Polynomial& Poly) {
+    if (Poly.terms == 0) {
+        Out << "0";
+        return Out;
     }
+
+    for (int i = 0; i < Poly.terms; i++) {
+        float Coef = Poly.termArray[i].coef;
+        int Exp = Poly.termArray[i].exp;
+
+        if (i > 0) {
+            if (Coef >= 0) Out << " + ";
+            else { Out << " - "; Coef = -Coef; }
+        }
+        else if (Coef < 0) {
+            Out << "-";
+            Coef = -Coef;
+        }
+
+        if (Exp == 0)
+            Out << Coef;
+        else if (Exp == 1)
+            Out << Coef << "x";
+        else
+            Out << Coef << "x^" << Exp;
+    }
+
+    return Out;
+}
+
+int main() {
+    Polynomial A, B;
+
+    cin >> A;
+    cin >> B;
+    Polynomial sum = A.Add(B);
+    Polynomial prod = A.Mult(B);
+    float x;
+    cout << "輸入x為多少: ";
+    cin >> x;
+    cout << "\nA(x) = " << A << endl;
+    cout << "B(x) = " << B << endl;
+    cout << "Sum = " << sum << endl;
+    cout << "Product = " << prod << endl;
+
+    cout << "p(" << x << ") = " << A.Eval(x) << endl;
+
+    return 0;
+}
+
+
 ```
 ## 效能分析
 
@@ -418,14 +400,14 @@ public:
 |   $A(2)$      |  | 17    |   17  |
 #### 測試輸入
 ```cpp
-Enter number of terms: 3
-Enter coefficient and exponent for term 1: 3 2
-Enter coefficient and exponent for term 2: 2 1
-Enter coefficient and exponent for term 3: 1 0
-Enter number of terms: 2
-Enter coefficient and exponent for term 1: 2 5
-Enter coefficient and exponent for term 2: 3 1
-Enter x value: 2 
+輸入次數: 3
+輸入第1項的係數和指數 : 3 2
+輸入第2項的係數和指數 : 2 1
+輸入第3項的係數和指數 : 1 0
+輸入次數: 2
+輸入第1項的係數和指數 : 2 5
+輸入第2項的係數和指數 : 3 1
+輸入x為多少: 2
 ```
 #### 測試輸出
 ```shell
