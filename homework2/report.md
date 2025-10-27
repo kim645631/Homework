@@ -157,11 +157,11 @@ public:
 
 int main() {
     Polynomial p1, p2;
-    p1.NewTerm(3, 2);
-    p1.NewTerm(2, 1);
-    p1.NewTerm(1, 0);
-    p2.NewTerm(1, 1);
-    p2.NewTerm(1, 1);
+    p1.NewTerm(6, 5);
+    p1.NewTerm(4, 3);
+    p1.NewTerm(3, 0);
+    p2.NewTerm(2, 3);
+    p2.NewTerm(2, 3);
 
     cout << "P1(x) = "; p1.Show();
     cout << "P2(x) = "; p2.Show();
@@ -172,7 +172,7 @@ int main() {
     Polynomial product = p1.Mult(p2);
     cout << "Product = "; product.Show();
 
-    cout << "P1(2) = " << p1.Eval(2) << endl;
+    cout << "P1(3) = " << p1.Eval(3) << endl;
     return 0;
 }
 ```
@@ -187,9 +187,9 @@ int main() {
 |          |        3, 0    |    6x^5 + 4x^3 + 3       |    6x^5 + 4x^3 + 3      |  
 | 測試二  |      2, 3    |             |         |       
 |          |       2, 3    |       4x^3     |   4x^3      | 
-|   $p1(x)$  +    $p2(x)$     |    6x^5 + 8x^3 + 3         |  6x^5 + 8x^3 + 3       |   
-|   $p1(x)$ * $p2(x)$     |   24x^8 + 16x^6 + 12x^3       |  24x^8 + 16x^6 + 12x^3       |   
-|   $p1(3)$      |  1569   | 1569    |   
+|   $p1(x)$  +    $p2(x)$     |    |  6x^5 + 8x^3 + 3       | 6x^5 + 8x^3 + 3         |   
+|   $p1(x)$ * $p2(x)$     |   |  24x^8 + 16x^6 + 12x^3       |   24x^8 + 16x^6 + 12x^3              |
+|   $p1(3)$      |  | 1569    |   1569   |
 #### 測試輸入
 ```cpp
 p1.NewTerm(6, 5);  
