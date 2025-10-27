@@ -219,129 +219,117 @@ Microsoft Visual Studio Code C/C++
 #include <algorithm>
 using namespace std;
 
-class Polynomial; // forward declaration
+class Polynomial;
 
 class Term {
-    friend Polynomial;
-    friend ostream& operator<<(ostream& output, const Polynomial& Poly);
+    friend class Polynomial;
 private:
-    float coef; // 系數
-    int exp;    // 指數
+    float coef;
+    int exp;
 };
 
 class Polynomial {
 private:
-    Term* termArray;  // 儲存非零項的動態陣列
-    int capacity;     // 陣列大小
-    int terms;        // 非零項數量
+    Term* termArray;
+    int capacity;
+    int terms;
 
 public:
-    // p(x) = 0
-    Polynomial() : capacity(10), terms(0) {
+    Polynomial() {
+        capacity = 10;
+        terms = 0;
         termArray = new Term[capacity];
     }
-    ~Polynomial() {
-        delete[] termArray;
+
+    Polynomial(const Polynomial& poly) {
+        capacity = poly.capacity;
+        terms = poly.terms;
+        termArray = new Term[capacity];
+        for (int i = 0; i < terms; i++)
+            termArray[i] = poly.termArray[i];
     }
 
-    void NewTerm(const float c, const int e) {
-        if (c == 0) return;
+    void NewTerm(float newCoef, int newExp) {
+        if (newCoef == 0) return;
+        for (int i = 0; i < terms; i++) {
+            if (termArray[i].exp == newExp) {
+                termArray[i].coef += newCoef;
+                if (termArray[i].coef == 0) {
+                    for (int j = i; j < terms - 1; j++)
+                        termArray[j] = termArray[j + 1];
+                    terms--;
+                }
+                return;
+            }
+        }
         if (terms == capacity) {
             capacity *= 2;
             Term* temp = new Term[capacity];
-            copy(termArray, termArray + terms, temp);
+            for (int i = 0; i < terms; i++)
+                temp[i] = termArray[i];
             delete[] termArray;
             termArray = temp;
         }
-        termArray[terms].coef = c;
-        termArray[terms++].exp = e;
+        termArray[terms].coef = newCoef;
+        termArray[terms].exp = newExp;
+        terms++;
+
+        for (int i = 0; i < terms - 1; i++) {
+            for (int j = i + 1; j < terms; j++) {
+                if (termArray[i].exp < termArray[j].exp)
+                    swap(termArray[i], termArray[j]);
+            }
+        }
     }
 
-    Polynomial operator+(const Polynomial& poly) const {
+    Polynomial Add(Polynomial poly) {
         Polynomial result;
-        int a = 0, b = 0;
-        while (a < terms && b < poly.terms) {
-            if (termArray[a].exp == poly.termArray[b].exp) {
-                float sum = termArray[a].coef + poly.termArray[b].coef;
+        int aPos = 0, bPos = 0;
+        while (aPos < terms && bPos < poly.terms) {
+            if (termArray[aPos].exp == poly.termArray[bPos].exp) {
+                float sum = termArray[aPos].coef + poly.termArray[bPos].coef;
                 if (sum != 0)
-                    result.NewTerm(sum, termArray[a].exp);
-                a++; b++;
+                    result.NewTerm(sum, termArray[aPos].exp);
+                aPos++; bPos++;
             }
-            else if (termArray[a].exp > poly.termArray[b].exp) {
-                result.NewTerm(termArray[a].coef, termArray[a].exp);
-                a++;
+            else if (termArray[aPos].exp > poly.termArray[bPos].exp) {
+                result.NewTerm(termArray[aPos].coef, termArray[aPos].exp);
+                aPos++;
             }
             else {
-                result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
-                b++;
+                result.NewTerm(poly.termArray[bPos].coef, poly.termArray[bPos].exp);
+                bPos++;
             }
         }
-        for (; a < terms; a++)
-            result.NewTerm(termArray[a].coef, termArray[a].exp);
-        for (; b < poly.terms; b++)
-            result.NewTerm(poly.termArray[b].coef, poly.termArray[b].exp);
+        for (; aPos < terms; aPos++)
+            result.NewTerm(termArray[aPos].coef, termArray[aPos].exp);
+        for (; bPos < poly.terms; bPos++)
+            result.NewTerm(poly.termArray[bPos].coef, poly.termArray[bPos].exp);
         return result;
     }
 
-    Polynomial operator*(const Polynomial& poly) const {
+    Polynomial Mult(Polynomial poly) {
         Polynomial result;
         for (int i = 0; i < terms; i++) {
+            Polynomial temp;
             for (int j = 0; j < poly.terms; j++) {
-                float c = termArray[i].coef * poly.termArray[j].coef;
-                int e = termArray[i].exp + poly.termArray[j].exp;
-                bool found = false;
-                for (int k = 0; k < result.terms; k++) {
-                    if (result.termArray[k].exp == e) {
-                        result.termArray[k].coef += c;
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                    result.NewTerm(c, e);
+                float newCoef = termArray[i].coef * poly.termArray[j].coef;
+                int newExp = termArray[i].exp + poly.termArray[j].exp;
+                temp.NewTerm(newCoef, newExp);
             }
+            result = result.Add(temp);
         }
-        sort(result.termArray, result.termArray + result.terms,
-            [](Term a, Term b) { return a.exp > b.exp; });
         return result;
     }
 
-    float operator()(float x) const {
-        float sum = 0;
+    float Eval(float f) {
+        float result = 0;
         for (int i = 0; i < terms; i++)
-            sum += termArray[i].coef * pow(x, termArray[i].exp);
-        return sum;
+            result += termArray[i].coef * pow(f, termArray[i].exp);
+        return result;
     }
 
-    friend istream& operator>>(istream& input, Polynomial& Poly) {
-        int n;
-        float coef;
-        int exp;
-        input >> n;
-        for (int i = 0; i < n; i++) {
-            input >> coef >> exp;
-            Poly.NewTerm(coef, exp);
-        }
-        return input;
-    }
-
-    friend ostream& operator<<(ostream& os, const Polynomial& poly) {
-        if (poly.terms == 0) {
-            os << "0";
-            return os;
-        }
-        for (int i = 0; i < poly.terms; i++) {
-            if (i > 0 && poly.termArray[i].coef > 0)
-                os << " + ";
-            else if (poly.termArray[i].coef < 0)
-                os << " ";
-            os << poly.termArray[i].coef;
-            if (poly.termArray[i].exp != 0)
-                os << "x^" << poly.termArray[i].exp;
-        }
-        return os;
-    }
-};
+   
 
 int main() {
     Polynomial a, b;
@@ -368,6 +356,7 @@ int main() {
 
 ```
 ## 效能分析
+
 ## 測試與驗證
 | 測試案例 | 輸入參數 $p1(x)$  | 預期輸出P1(x)  | 實際輸出 P1(x) | 
 |----------|--------------|----------|----------|
