@@ -2,9 +2,13 @@
 ## 作業二 Polynomial
 ## 解題說明
 
+### 解題策略
 
 ## 程式實作
 ### IDE:
+Microsoft Visual Studio Code C/C++
+
+```cpp
 #include <iostream>
 #include <cmath>
 using namespace std;
@@ -205,6 +209,7 @@ Sum = 2x^5 + 3x^2 + 5x + 1
 Product = 6x^7 + 4x^6 + 2x^5 + 9x^3 + 6x^2 + 3x
 p(2) = 17
 ```
+### 結論
 
 ## 申論及開發報告
 
