@@ -1,0 +1,157 @@
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+class Polynomial;
+
+class Term {
+    friend class Polynomial;
+    friend ostream& operator<<(ostream&, const Polynomial&);
+private:
+    float coef;
+    int exp;
+};
+
+class Polynomial {
+    friend ostream& operator<<(ostream& out, const Polynomial& Poly);
+    friend istream& operator>>(istream& in, Polynomial& Poly);
+private:
+    Term* termArray;
+    int capacity;
+    int terms;
+
+public:
+    Polynomial() {
+        capacity = 10;
+        terms = 0;
+        termArray = new Term[capacity];
+    }
+
+    Polynomial Add(Polynomial Poly) {
+        Polynomial Res;
+        int a = 0, b = 0;
+        while (a < terms && b < Poly.terms) {
+            if (termArray[a].exp == Poly.termArray[b].exp) {
+                float sum = termArray[a].coef + Poly.termArray[b].coef;
+                if (sum != 0)
+                    Res.Newterms(sum, termArray[a].exp);
+                a++; b++;
+            }
+            else if (termArray[a].exp > Poly.termArray[b].exp) {
+                Res.Newterms(termArray[a].coef, termArray[a].exp);
+                a++;
+            }
+            else {
+                Res.Newterms(Poly.termArray[b].coef, Poly.termArray[b].exp);
+                b++;
+            }
+        }
+        for (; a < terms; a++)
+            Res.Newterms(termArray[a].coef, termArray[a].exp);
+        for (; b < Poly.terms; b++)
+            Res.Newterms(Poly.termArray[b].coef, Poly.termArray[b].exp);
+        return Res;
+    }
+
+    Polynomial Mult(Polynomial Poly) {
+        Polynomial Res;
+        for (int i = 0; i < terms; i++) {
+            Polynomial Temp;
+            for (int j = 0; j < Poly.terms; j++) {
+                float newCoef = termArray[i].coef * Poly.termArray[j].coef;
+                int newExp = termArray[i].exp + Poly.termArray[j].exp;
+                Temp.Newterms(newCoef, newExp);
+            }
+            Res = Res.Add(Temp);
+        }
+        return Res;
+    }
+
+    float Eval(float Float) {
+        float Res = 0;
+        for (int i = 0; i < terms; i++)
+            Res += termArray[i].coef * pow(Float, termArray[i].exp);
+        return Res;
+    }
+    void Newterms(float newCoef, int newExp) {
+        if (newCoef == 0) return;
+        if (terms == capacity) {
+            capacity *= 2;
+            Term* Temp = new Term[capacity];
+            for (int i = 0; i < terms; i++)
+                Temp[i] = termArray[i];
+            delete[] termArray;
+            termArray = Temp;
+        }
+        termArray[terms].coef = newCoef;
+        termArray[terms].exp = newExp;
+        terms++;
+    }
+};
+
+istream& operator>>(istream& In, Polynomial& Poly) {
+    int n;
+    cout << "輸入次數: ";
+    In >> n;
+
+    Poly.terms = 0;
+
+    for (int i = 0; i < n; i++) {
+        float Coef;
+        int Exp;
+        cout << "輸入第" << i + 1 << "項的係數和指數 " << ": ";
+        In >> Coef >> Exp;
+        Poly.Newterms(Coef, Exp);
+    }
+
+    return In;
+}
+ostream& operator<<(ostream& Out, const Polynomial& Poly) {
+    if (Poly.terms == 0) {
+        Out << "0";
+        return Out;
+    }
+
+    for (int i = 0; i < Poly.terms; i++) {
+        float Coef = Poly.termArray[i].coef;
+        int Exp = Poly.termArray[i].exp;
+
+        if (i > 0) {
+            if (Coef >= 0) Out << " + ";
+            else { Out << " - "; Coef = -Coef; }
+        }
+        else if (Coef < 0) {
+            Out << "-";
+            Coef = -Coef;
+        }
+
+        if (Exp == 0)
+            Out << Coef;
+        else if (Exp == 1)
+            Out << Coef << "x";
+        else
+            Out << Coef << "x^" << Exp;
+    }
+
+    return Out;
+}
+
+int main() {
+    Polynomial A, B;
+
+    cin >> A;
+    cin >> B;
+    Polynomial sum = A.Add(B);
+    Polynomial prod = A.Mult(B);
+    float x;
+    cout << "輸入x為多少: ";
+    cin >> x;
+    cout << "\nA(x) = " << A << endl;
+    cout << "B(x) = " << B << endl;
+    cout << "Sum = " << sum << endl;
+    cout << "Product = " << prod << endl;
+
+    cout << "p(" << x << ") = " << A.Eval(x) << endl;
+
+    return 0;
+}
