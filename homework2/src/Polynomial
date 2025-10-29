@@ -152,6 +152,5 @@ int main() {
     cout << "Product = " << prod << endl;
 
     cout << "p(" << x << ") = " << A.Eval(x) << endl;
-
     return 0;
 }
