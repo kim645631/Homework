@@ -281,8 +281,8 @@ p(2) = 17
         Temp.Newterms(newCoef, newExp);
     }
     Res = Res.Add(Temp);
-}
-
+  }
+  
 #### 多項式求值 Eval(x)
 - 將輸入的 x 值代入多項式：
 
