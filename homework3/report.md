@@ -386,7 +386,7 @@ istream& operator>>(std::istream& is, Polynomial& poly) {
     for (int i = 0; i < numTerms; ++i) {
         double coef;
         int exp;
-        std::cout << "輸入第"<<i+1<<"的指數、係數:";
+        std::cout << "輸入第"<<i+1<<"項的係數和指數:";
         is >> coef >> exp;
         poly.newTerm(coef, exp);
     }
