@@ -1,5 +1,5 @@
 # 41343121
-## 作業三 Polynomial+Available Lists
+## 作業三 Polynomial + Available Lists
 ## 解題說明
 實現對多項式的：
 
