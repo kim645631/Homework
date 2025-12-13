@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+using namespace std;
 
 template <class T>
 class ChainNode;
@@ -204,8 +205,8 @@ struct Term {
 AvailableList<Term> globalASL;
 
 class Polynomial {
-    friend std::ostream& operator<<(std::ostream& os, const Polynomial& poly);
-    friend std::istream& operator>>(std::istream& is, Polynomial& poly);
+    friend ostream& operator<<(std::ostream& os, const Polynomial& poly);
+    friend istream& operator>>(std::istream& is, Polynomial& poly);
 private:
     Chain<Term> terms; 
 public:
@@ -338,7 +339,7 @@ public:
     }
 };
 
-std::istream& operator>>(std::istream& is, Polynomial& poly) {
+istream& operator>>(std::istream& is, Polynomial& poly) {
     int numTerms;
     if (!(is >> numTerms)) return is;
     for (int i = 0; i < numTerms; ++i) {
@@ -351,7 +352,7 @@ std::istream& operator>>(std::istream& is, Polynomial& poly) {
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Polynomial& poly) {
+ostream& operator<<(std::ostream& os, const Polynomial& poly) {
     bool first = true;
     for (ChainIterator<Term> it = poly.begin(); it != poly.end(); ++it) {
         if (!first) {
@@ -366,23 +367,24 @@ std::ostream& operator<<(std::ostream& os, const Polynomial& poly) {
 int main() {
     Polynomial A, B;
     float x;
-    std::cout << "輸入A的項數:";
-    std::cin >> A;
-    std::cout << "輸入B的項數:";
-    std::cin >> B;
-    std::cout << "輸入x為多少:";
-    std::cin >> x;
+    cout << "輸入A的項數:";
+    cin >> A;
+    cout << "輸入B的項數:";
+    cin >> B;
+    cout << "輸入x為多少:";
+    cin >> x;
 
-    std::cout << "A = " << A << '\n';
-    std::cout << "B = " << B << '\n';
+    cout << "A = " << A << '\n';
+    cout << "B = " << B << '\n';
 
-    std::cout << "A + B = " << (A + B) << '\n';
-    std::cout << "A - B = " << (A - B) << '\n';
-    std::cout << "A * B = " << (A * B) << '\n';
+    cout << "A + B = " << (A + B) << '\n';
+    cout << "A - B = " << (A - B) << '\n';
+    cout << "A * B = " << (A * B) << '\n';
     
     
 
-    std::cout << "A(" << x << ") = " << A.Evaluate(x) << '\n';
+    cout << "A(" << x << ") = " << A.Evaluate(x) << '\n';
 
     return 0;
 }
+
