@@ -1,211 +1,411 @@
 # 41343121
-## 作業二 Polynomial
+## 作業三 Polynomial+Available Lists
 ## 解題說明
-本題要實作多項式 (Polynomial) 的相加、相乘與給 x 值的計算，並實作輸入和輸出重載。輸入可能包含重複指數、負係數或未排序的項，程式需要正確處理並輸出可閱讀的格式
 
-例如：輸入項 (3,2), (2,1), (1,0) 應輸出 3x^2 + 2x + 1
-### 需求
-- 可以接收多項式的輸入（係數與指數，有可能會有未排序或重複指數）
-- 計算多項式加法與乘法（需要合併同次項並移除係數為 0 的項）
-- 對任意 x 值進行代入求值
-- 以我們可閱讀的格式輸出多項式（處理 1 與 -1、整數係數顯示）
 ### 解題策略
-以物件導向為核心這些:
 
-- Term和Polynomial類別
-- 多項式加法 Add()
-- 多項式乘法 Mult()
-- 多項式求值 Eval(x)
 ## 程式實作
 ### IDE:
 Microsoft Visual Studio Code C/C++
 
 ```cpp
 #include <iostream>
-#include <cmath>
+#include <cstdlib>
 using namespace std;
 
-class Polynomial;
+template <class T>
+class ChainNode;
 
-class Term {
-    friend class Polynomial;
-    friend ostream& operator<<(ostream&, const Polynomial&);
+template <class T>
+class ChainIterator;
+
+template <class T>
+class Chain;
+
+template <class T>
+class AvailableList;
+
+template <class T>
+class ChainNode {
+    friend class Chain<T>;
+    friend class ChainIterator<T>;
+    friend class AvailableList<T>;
 private:
-    float coef;
-    int exp;
+    T element;
+    ChainNode<T>* next;
+public:
+    ChainNode() : next(nullptr) {}
+    ChainNode(const T& elem) : element(elem), next(nullptr) {}
+    ChainNode(const T& elem, ChainNode<T>* nextNode)
+        : element(elem), next(nextNode) {}
+    void setElement(const T& elem) {
+        element = elem;
+    }
+    void setNext(ChainNode<T>* nextNode) {
+        next = nextNode;
+    }
 };
 
-class Polynomial {
-    friend ostream& operator<<(ostream& out, const Polynomial& Poly);
-    friend istream& operator>>(istream& in, Polynomial& Poly);
+// Iterator for Chain
+template <class T>
+class ChainIterator {
 private:
-    Term* termArray;
-    int capacity;
-    int terms;
-
+    ChainNode<T>* currentNode;
 public:
-    Polynomial() {
-        capacity = 10;
-        terms = 0;
-        termArray = new Term[capacity];
+    ChainIterator(ChainNode<T>* startNode = nullptr) : currentNode(startNode) {}
+
+    T& operator*() const { return currentNode->element; }
+    T* operator->() const { return &currentNode->element; }
+    
+    ChainIterator& operator++() {
+        if (currentNode) currentNode = currentNode->next;
+        return *this;
     }
 
-    Polynomial Add(Polynomial Poly) {
-        Polynomial Res;
-        int a = 0, b = 0;
-        while (a < terms && b < Poly.terms) {
-            if (termArray[a].exp == Poly.termArray[b].exp) {
-                float sum = termArray[a].coef + Poly.termArray[b].coef;
-                if (sum != 0)
-                    Res.Newterms(sum, termArray[a].exp);
-                a++; b++;
+    ChainIterator operator++(int) {
+        ChainIterator old = *this;
+        if (currentNode) currentNode = currentNode->next;
+        return old;
+    }
+
+    bool operator!=(const ChainIterator& right) const {
+        return currentNode != right.currentNode;
+    }
+    bool operator==(const ChainIterator& right) const {
+        return currentNode == right.currentNode;
+    }
+
+    int operator-(const ChainIterator& right) const {
+        int distance = 0;
+        ChainNode<T>* temp = right.currentNode;
+        while (temp != currentNode) {
+            if (temp == nullptr) {
+                return -1;
             }
-            else if (termArray[a].exp > Poly.termArray[b].exp) {
-                Res.Newterms(termArray[a].coef, termArray[a].exp);
-                a++;
+            temp = temp->next;
+            ++distance;
+        }
+        return distance;
+    }
+};
+
+
+template <class T>
+class AvailableList {
+private:
+    static ChainNode<T>* availableHead;
+public:
+    AvailableList() {}
+    ~AvailableList() {
+       
+        while (availableHead) {
+            ChainNode<T>* tmp = availableHead;
+            availableHead = availableHead->next;
+            delete tmp;
+        }
+    }
+
+    
+    static ChainNode<T>* getNode() {
+        if (!availableHead) return nullptr;
+        ChainNode<T>* nodeToReturn = availableHead;
+        availableHead = availableHead->next;
+        nodeToReturn->next = nullptr;
+        return nodeToReturn;
+    }
+
+   
+    static void getBack(ChainNode<T>* firstNode) {
+        if (!firstNode) return;
+       
+        ChainNode<T>* current = firstNode;
+        while (current->next) {
+            current = current->next;
+        }
+        
+        current->next = availableHead;
+        
+        availableHead = firstNode;
+    }
+
+    static bool isEmpty() {
+        return availableHead == nullptr;
+    }
+
+    
+    static ChainNode<T>* getOneNodeOrNew(const T& elem) {
+        ChainNode<T>* node = getNode();
+        if (!node) node = new ChainNode<T>(elem);
+        else node->setElement(elem);
+        return node;
+    }
+};
+
+template <class T>
+ChainNode<T>* AvailableList<T>::availableHead = nullptr;
+
+template <class T>
+class Chain {
+    friend class ChainIterator<T>;
+    friend class AvailableList<T>;
+private:
+    ChainNode<T>* head;
+public:
+    Chain() : head(nullptr) {}
+    ~Chain() {
+        ChainNode<T>* current = head;
+        while (current != nullptr) {
+            ChainNode<T>* nextNode = current->next;
+            delete current;
+            current = nextNode;
+        }
+        head = nullptr;
+    }
+
+    ChainNode<T>* release() {
+        ChainNode<T>* oldHead = head;
+        head = nullptr;
+        return oldHead;
+    }
+
+    ChainIterator<T> begin() const {
+        return ChainIterator<T>(head);
+    }
+    ChainIterator<T> end() const {
+        return ChainIterator<T>(nullptr);
+    }
+
+    void insert(int idx, const T& element) {
+        ChainNode<T>* newNode = AvailableList<T>::getNode();
+        if (!newNode) {
+            newNode = new ChainNode<T>(element);
+        }
+        else {
+            newNode->setElement(element);
+        }
+
+        if (idx == 0) {
+            newNode->next = head;
+            head = newNode;
+        }
+        else {
+            ChainNode<T>* prev = head;
+
+            for (int i = 0; i < idx - 1 && prev != nullptr; ++i) {
+                prev = prev->next;
+            }
+            if (prev != nullptr) {
+                newNode->next = prev->next;
+                prev->next = newNode;
             }
             else {
-                Res.Newterms(Poly.termArray[b].coef, Poly.termArray[b].exp);
-                b++;
+
+                AvailableList<T>::getBack(newNode);
             }
         }
-        for (; a < terms; a++)
-            Res.Newterms(termArray[a].coef, termArray[a].exp);
-        for (; b < Poly.terms; b++)
-            Res.Newterms(Poly.termArray[b].coef, Poly.termArray[b].exp);
-        return Res;
-    }
-
-    Polynomial Mult(Polynomial Poly) {
-        Polynomial Res;
-        for (int i = 0; i < terms; i++) {
-            Polynomial Temp;
-            for (int j = 0; j < Poly.terms; j++) {
-                float newCoef = termArray[i].coef * Poly.termArray[j].coef;
-                int newExp = termArray[i].exp + Poly.termArray[j].exp;
-                Temp.Newterms(newCoef, newExp);
-            }
-            Res = Res.Add(Temp);
-        }
-        return Res;
-    }
-
-    float Eval(float Float) {
-        float Res = 0;
-        for (int i = 0; i < terms; i++)
-            Res += termArray[i].coef * pow(Float, termArray[i].exp);
-        return Res;
-    }
-    void Newterms(float newCoef, int newExp) {
-        if (newCoef == 0) return;
-        if (terms == capacity) {
-            capacity *= 2;
-            Term* Temp = new Term[capacity];
-            for (int i = 0; i < terms; i++)
-                Temp[i] = termArray[i];
-            delete[] termArray;
-            termArray = Temp;
-        }
-        termArray[terms].coef = newCoef;
-        termArray[terms].exp = newExp;
-        terms++;
     }
 };
 
-istream& operator>>(istream& In, Polynomial& Poly) {
-    int n;
-    cout << "輸入次數: ";
-    In >> n;
+struct Term {
+    double coef;
+    int exp;
+    Term() : coef(0.0), exp(0) {}
+    Term(double c, int e) : coef(c), exp(e) {}
+};
 
-    Poly.terms = 0;
+AvailableList<Term> globalASL;
 
-    for (int i = 0; i < n; i++) {
-        float Coef;
-        int Exp;
-        cout << "輸入第" << i + 1 << "項的係數和指數 " << ": ";
-        In >> Coef >> Exp;
-        Poly.Newterms(Coef, Exp);
+class Polynomial {
+    friend ostream& operator<<(std::ostream& os, const Polynomial& poly);
+    friend istream& operator>>(std::istream& is, Polynomial& poly);
+private:
+    Chain<Term> terms; 
+public:
+    Polynomial() {}
+
+    // Copy constructor
+    Polynomial(const Polynomial& other) {
+        int index = 0;
+        for (ChainIterator<Term> it = other.begin(); it != other.end(); ++it, ++index) {
+            terms.insert(index, *it);
+        }
     }
 
-    return In;
+    Polynomial& operator=(const Polynomial& other) {
+        if (this != &other) {
+
+            AvailableList<Term>::getBack(terms.release());
+
+            int index = 0;
+            for (ChainIterator<Term> it = other.begin(); it != other.end(); ++it, ++index) {
+                terms.insert(index, *it);
+            }
+        }
+        return *this;
+    }
+
+    ~Polynomial() {
+        AvailableList<Term>::getBack(terms.release());
+    }
+
+    ChainIterator<Term> begin() const {
+        return terms.begin();
+    }
+    ChainIterator<Term> end() const {
+        return terms.end();
+    }
+
+    void newTerm(double coef, int exp) {
+
+        if (terms.begin() == terms.end()) {
+            terms.insert(0, Term(coef, exp));
+            return;
+        }
+
+        int index = 0;
+        for (ChainIterator<Term> it = terms.begin(); it != terms.end(); ++it, ++index) {
+            if (it->exp < exp) {
+
+                terms.insert(index, Term(coef, exp));
+                return;
+            }
+            else if (it->exp == exp) {
+
+                it->coef += coef;
+                return;
+            }
+        }
+
+        terms.insert(index, Term(coef, exp));
+    }
+
+    Polynomial operator+(const Polynomial& other) const {
+        Polynomial result;
+        ChainIterator<Term> it1 = this->begin();
+        ChainIterator<Term> it2 = other.begin();
+        while (it1 != this->end() && it2 != other.end()) {
+            if (it1->exp > it2->exp) {
+                result.newTerm(it1->coef, it1->exp);
+                ++it1;
+            }
+            else if (it1->exp < it2->exp) {
+                result.newTerm(it2->coef, it2->exp);
+                ++it2;
+            }
+            else {
+                double newCoef = it1->coef + it2->coef;
+                if (newCoef != 0) {
+                    result.newTerm(newCoef, it1->exp);
+                }
+                ++it1;
+                ++it2;
+            }
+        }
+        while (it1 != this->end()) {
+            result.newTerm(it1->coef, it1->exp);
+            ++it1;
+        }
+        while (it2 != other.end()) {
+            result.newTerm(it2->coef, it2->exp);
+            ++it2;
+        }
+        return result;
+    }
+
+    Polynomial operator-(const Polynomial& other) const {
+        Polynomial negOther;
+        for (ChainIterator<Term> it = other.begin(); it != other.end(); ++it) {
+            negOther.newTerm(-it->coef, it->exp);
+        }
+        return (*this) + negOther;
+    }
+
+    Polynomial operator*(const Polynomial& other) const {
+        Polynomial result;
+        for (ChainIterator<Term> it1 = this->begin(); it1 != this->end(); ++it1) {
+            for (ChainIterator<Term> it2 = other.begin(); it2 != other.end(); ++it2) {
+                double newCoef = it1->coef * it2->coef;
+                int newExp = it1->exp + it2->exp;
+                result.newTerm(newCoef, newExp);
+            }
+        }
+        return result;
+    }
+    float Evaluate(float x) const {
+        float result = 0.0f;
+
+        for (ChainIterator<Term> it = begin(); it != end(); ++it) {
+            float termValue = it->coef;
+            int exp = it->exp;
+
+
+            float power = 1.0f;
+            for (int i = 0; i < exp; ++i) {
+                power *= x;
+            }
+
+            result += termValue * power;
+        }
+        return result;
+    }
+};
+
+istream& operator>>(std::istream& is, Polynomial& poly) {
+    int numTerms;
+    if (!(is >> numTerms)) return is;
+    for (int i = 0; i < numTerms; ++i) {
+        double coef;
+        int exp;
+        std::cout << "輸入第"<<i+1<<"的指數、係數:";
+        is >> coef >> exp;
+        poly.newTerm(coef, exp);
+    }
+    return is;
 }
-ostream& operator<<(ostream& Out, const Polynomial& Poly) {
-    if (Poly.terms == 0) {
-        Out << "0";
-        return Out;
-    }
 
-    for (int i = 0; i < Poly.terms; i++) {
-        float Coef = Poly.termArray[i].coef;
-        int Exp = Poly.termArray[i].exp;
-
-        if (i > 0) {
-            if (Coef >= 0) Out << " + ";
-            else { Out << " - "; Coef = -Coef; }
+ostream& operator<<(std::ostream& os, const Polynomial& poly) {
+    bool first = true;
+    for (ChainIterator<Term> it = poly.begin(); it != poly.end(); ++it) {
+        if (!first) {
+            os << " + ";
         }
-        else if (Coef < 0) {
-            Out << "-";
-            Coef = -Coef;
-        }
-
-        if (Exp == 0)
-            Out << Coef;
-        else if (Exp == 1)
-            Out << Coef << "x";
-        else
-            Out << Coef << "x^" << Exp;
+        first = false;
+        os << it->coef << "x^" << it->exp;
     }
-
-    return Out;
+    return os;
 }
 
 int main() {
     Polynomial A, B;
-
-    cin >> A;
-    cin >> B;
-    Polynomial sum = A.Add(B);
-    Polynomial prod = A.Mult(B);
     float x;
-    cout << "輸入x為多少: ";
+    cout << "輸入A的項數:";
+    cin >> A;
+    cout << "輸入B的項數:";
+    cin >> B;
+    cout << "輸入x為多少:";
     cin >> x;
-    cout << "\nA(x) = " << A << endl;
-    cout << "B(x) = " << B << endl;
-    cout << "Sum = " << sum << endl;
-    cout << "Product = " << prod << endl;
 
-    cout << "p(" << x << ") = " << A.Eval(x) << endl;
+    cout << "A = " << A << '\n';
+    cout << "B = " << B << '\n';
+
+    cout << "A + B = " << (A + B) << '\n';
+    cout << "A - B = " << (A - B) << '\n';
+    cout << "A * B = " << (A * B) << '\n';
+    
+    
+
+    cout << "A(" << x << ") = " << A.Evaluate(x) << '\n';
 
     return 0;
 }
+
 
 ```
 ## 效能分析
 1. 時間複雜度：
 
-    Newterms: $O(1)$   當發生重新配置時 $O(t)$（t =terms)
-
-    Add: $O(n + m)$   以兩指標線性尋找兩個已排序的 term 陣列
-
-    Mult: $O(n * m^2)$   當 m ≈ n 時，最壞情況為 $O(n^3)$
-
-    Eval: $O(n)$   不改變多項式本身，僅常數空間
-
-    Newterms（單次）：均攤  $O(1)$
-
 2. 空間複雜度：
 
-    Newterms: $O(1)$   當須擴充陣列時會配置一個新陣列 Term[capacity*2]，此時短暫同時存在新舊陣列，峰值為 $O(t)$ ，如果長期使用的空間是 O(t)（termArray 的容量，t 為目前 capacity）
-
-    Add: $O(n + m)$   程式總共在記憶體中需要 A、B ，所以此函式儲存量為 $O(m + n)$
-
-    Mult: $O(m * n)$   最多會含有 m * n 個不同項，所以此函式儲存量為 $O(m * n)$
-
-    Eval: $O(1)$   每項一個 pow 呼叫，因此整體  $O(n)$
-
-    istream： $O(1)$ 輸入後 Poly 內部儲存 n 項 $O(n)$
-
-    ostream： $O(1)$
 
 ## 測試與驗證
 ### 測試案例
@@ -286,6 +486,4 @@ $$P(x) = \sum_i (coef_i \times x^{exp_i})$$
 
 ### 結論
 
-本次作業充分的練習到了物件導向,對多項式運算的邏輯化設計有更深理解。
-此多項式系統成功實現了基礎的多項式四則運算，展示了 C++ 類別設計與動態陣列管理的應用。
 程式結構清晰，擴充性高，適合作為教學與進階功能開發的基礎。
