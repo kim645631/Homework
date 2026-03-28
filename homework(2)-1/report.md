@@ -279,7 +279,7 @@ private:
         if (node == NULL) return new Node(key);
         if (key < node->key) node->left = insertRec(node->left, key);
         else if (key > node->key) node->right = insertRec(node->right, key);
-        return node; 
+        return node;
     }
 
     static int heightRec(Node* node) {
@@ -339,14 +339,14 @@ static int uniformKey(int KEY_MAX) {
 }
 
 int main() {
-    std::srand(123456); 
+    std::srand(123456);
     const int TRIALS = 50;
     const int KEY_MAX = 1000000000;
 
     int ns[] = { 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000 };
     int m = (int)(sizeof(ns) / sizeof(ns[0]));
 
-    std::cout << "n,height_avg,ratio_height_over_log2n\n";
+    std::cout << "n,avgH,avgH/log2n\n";
 
     for (int idx = 0; idx < m; idx++) {
         int n = ns[idx];
