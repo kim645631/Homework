@@ -471,7 +471,7 @@ private:
 ### 測試輸出
 
 ```
-n,height_avg,ratio_height_over_log2n
+n,avgH,avgH/log2n
 100,13.240000,1.992819
 500,19.360000,2.159320
 1000,21.920000,2.199526
