@@ -193,30 +193,201 @@ int main() {
 ## 作業一 Binary Search Tree
 
 ## 解題說明
-
+本題利用 Binary Search Tree（BST），在隨機插入資料的情況下，觀察樹的高度隨節點數 n 的變化。
+- 對多個不同的節點數 𝑛（100 ~ 10000）進行測試
+- 每個 𝑛：
+   - 重複進行 50 次實驗（TRIALS）
+   - 每次建立一棵 BST
+   - 插入 𝑛 個隨機 key（均勻分布）
+   - 計算該 BST 的高度
+- 將 50 次的高度取平均，得到：
+   - 平均高度 avgH
+- 計算：
+   - $\log_2 n$
+- 輸出：
+   - 平均高度
+   - 比值：avgH/ $\log_2 n$ v
 ### 解題策略
+- 使用隨機輸入模擬「平均情況」
+- 多次實驗降低誤差
+- 用 log₂(n) 作為理論基準
+- 比值分析: avgH/ $\log_2 n$ 
 ## 程式實作
 
 ### IDE:
 Microsoft Visual Studio Code C/C++
 
+(a)
 ```cpp
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
 
+struct Node {
+    int key;
+    Node* left;
+    Node* right;
+    explicit Node(int k) : key(k), left(NULL), right(NULL) {}
+};
+
+class BST {
+public:
+    BST() : root(NULL) {}
+    ~BST() { clear(root); }
+
+    void insert(int key) { root = insertRec(root, key); }
+    void erase(int key)  { root = deleteRec(root, key); }
+    int height() const   { return heightRec(root); }
+
+private:
+    Node* root;
+
+    static Node* insertRec(Node* node, int key) {
+        if (node == NULL) return new Node(key);
+        if (key < node->key) node->left = insertRec(node->left, key);
+        else if (key > node->key) node->right = insertRec(node->right, key);
+        return node; // key 相同：不插入
+    }
+
+    static int heightRec(Node* node) {
+        if (node == NULL) return 0; // 空樹高度 0（節點數定義）
+        int hl = heightRec(node->left);
+        int hr = heightRec(node->right);
+        return 1 + (hl > hr ? hl : hr);
+    }
+
+    static Node* findMin(Node* node) {
+        while (node && node->left) node = node->left;
+        return node;
+    }
+
+    static Node* deleteRec(Node* node, int key) {
+        if (node == NULL) return NULL;
+
+        if (key < node->key) node->left = deleteRec(node->left, key);
+        else if (key > node->key) node->right = deleteRec(node->right, key);
+        else {
+            if (node->left == NULL && node->right == NULL) {
+                delete node;
+                return NULL;
+            } else if (node->left == NULL) {
+                Node* r = node->right;
+                delete node;
+                return r;
+            } else if (node->right == NULL) {
+                Node* l = node->left;
+                delete node;
+                return l;
+            } else {
+                Node* succ = findMin(node->right);
+                node->key = succ->key;
+                node->right = deleteRec(node->right, succ->key);
+            }
+        }
+        return node;
+    }
+
+    static void clear(Node* node) {
+        if (!node) return;
+        clear(node->left);
+        clear(node->right);
+        delete node;
+    }
+};
+
+// 產生 [1, KEY_MAX] 的均勻亂數（用 rand()）
+// 注意：rand() 的 RAND_MAX 有上限，所以用「拼接位元」讓範圍更大一點
+static int uniformKey(int KEY_MAX) {
+    unsigned int a = (unsigned int)std::rand();
+    unsigned int b = (unsigned int)std::rand();
+    unsigned int x = (a << 16) ^ b; // 混合兩次 rand()
+    return (int)(x % (unsigned int)KEY_MAX) + 1;
+}
+
+int main() {
+    // 用時間當 seed（也可改固定 seed 方便重現）
+    std::srand(123456); // 想要每次結果不同可用：std::srand((unsigned)std::time(NULL));
+                        // 但 time() 需要 <ctime>，你沒列，所以這裡用固定 seed
+
+    const int TRIALS = 50;
+    const int KEY_MAX = 1000000000;
+
+    int ns[] = {100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000};
+    int m = (int)(sizeof(ns) / sizeof(ns[0]));
+
+    std::cout << "n,height_avg,ratio_height_over_log2n\n";
+
+    for (int idx = 0; idx < m; idx++) {
+        int n = ns[idx];
+        double sumH = 0.0;
+
+        for (int t = 0; t < TRIALS; t++) {
+            BST tree;
+            for (int i = 0; i < n; i++) tree.insert(uniformKey(KEY_MAX));
+            sumH += tree.height();
+        }
+
+        double avgH = sumH / TRIALS;
+        double log2n = std::log((double)n) / std::log(2.0);
+        double ratio = avgH / log2n;
+
+        std::printf("%d,%.6f,%.6f\n", n, avgH, ratio);
+    }
+
+    // (b) delete：BST::erase(key)，時間複雜度 O(h)（平均 O(log n)，最壞 O(n)）
+    return 0;
+}
+```
+(b)
+```cpp
+// (b) demo：刪除 key = 70
+BST demo;
+int vals[] = {50, 30, 70, 20, 40, 60, 80};
+for (int i = 0; i < 7; i++) demo.insert(vals[i]);
+
+demo.erase(70); // <-- (b) delete pair with key k (這裡只有 key)
+
+std::fprintf(stderr, "height after erase(70) = %d\n", demo.height());
 ```
 
 ## 效能分析
-1. 空間複雜度：
-2. 時間複雜度：
+空間複雜度：
+| 類型              | 複雜度             |
+| --------------- | --------------- |
+| 樹儲存             | O(n)            |
+| recursion stack | O(log n) ~ O(n) |
+
+時間複雜度： 
+ |操作      | 平均時間     | 最壞時間 |
+| ------- | -------- | ---- |
+| insert  | O(log n) | O(n) |
+| delete  | O(log n) | O(n) |
+| findMin | O(log n) | O(n) |
+| height  | O(n)     | O(n) |
+| clear   | O(n)     | O(n) |
+
 
 ## 測試與驗證
 
 ### 測試案例
 
-| 測資 | 輸入參數 $n$ , 元素 | 預期輸出 | 實際輸出 |
+| 測資 | 輸入參數 n| 預期輸出  avgH, avgH/ $\log_2 n$ | 實際輸出avgH, avgH/ $\log_2 n$  |
 |----------|--------------|----------|----------|
-| 測試一   | $n = 1$ , a | () (a)       | () (a)       |
-| 測試二   | $m = 2$ , a b | () (b) (a) (a,b)  | () (b) (a) (a,b)       |
-| 測試三   | $m = 3$ , a b c | () (c) (b) (b,c) (a) (a,c) (a,b) (a,b,c) | () (c) (b) (b,c) (a) (a,c) (a,b) (a,b,c) |
+| 測試一   |100|   13.240000 ,1.992819  |   13.240000 ,1.992819 |
+| 測試二   | 500 |  19.360000,2.159320 |   19.360000,2.159320   |
+| 測試三   |1000 |21.920000,2.199526 |  21.920000,2.199526|
+| 測試四   |2000 | 24.800000,2.261580|24.800000,2.261580 |
+| 測試五   |3000 | 26.240000,2.271715| 26.240000,2.271715|
+| 測試六   |4000 | 27.400000,2.289862 |27.400000,2.289862 |
+| 測試七   |5000 | 28.120000, 2.288465| 28.120000, 2.288465 |
+| 測試八  | 6000|29.020000, 2.312213 |29.020000, 2.312213 |
+| 測試九  | 7000|30.000000,2.348679  | 30.000000,2.348679|
+| 測試十   | 8000| 30.040000,2.316867|30.040000,2.316867  |
+| 測試十一  |9000 |30.720000,2.338663 | 30.720000,2.338663 |
+| 測試十二   | 10000| 30.960000,2.329972|30.960000,2.329972  |
+
 ### 編譯與執行指令
 
 ```shell
@@ -226,7 +397,12 @@ $ .\pow.exe
 ```
 
 ### 結論
-
+本實驗透過對不同規模 𝑛的資料進行隨機插入，建立多棵 Binary Search Tree（BST），並計算其平均高度，進一步與 
+  $\log_2 ​(n) $ 進行比較分析。
 
 ## 申論及開發報告
-
+本實驗不僅實作 BST，更重要的是透過實驗方式驗證理論分析結果。
+理論上，BST 的操作效率取決於樹高，在最壞情況下可能退化為 𝑂(𝑛)，但在隨機輸入下，其期望高度為 𝑂(log⁡𝑛)從實驗結果可觀察到：
+- 平均高度隨 𝑛增加呈現緩慢上升
+- 與 log⁡𝑛成長趨勢一致
+- 比值趨於穩定常數
