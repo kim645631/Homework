@@ -144,13 +144,13 @@ int main() {
 
 ## 效能分析
 1. 空間複雜度：
-- 總空間複雜度：O(n)
+   - 總空間複雜度：O(n)
 2. 時間複雜度：
-- IsEmpty()：O(1)
-- Top()：O(1)
-- Push(x)：O(log n)
-- Pop()：O(log n)
-- PrintArray():O(n)
+   - IsEmpty()：O(1)
+   - Top()：O(1)
+   - Push(x)：O(log n)
+   - Pop()：O(log n)
+   - PrintArray():O(n)
 ## 測試與驗證
 
 ### 測試案例 
@@ -203,7 +203,7 @@ int main() {
 ## 作業一 Binary Search Tree
 
 ## 解題說明
-本題利用 Binary Search Tree（BST），在隨機插入資料的情況下，觀察樹的高度隨節點數 n 的變化。
+(a)本題利用 Binary Search Tree（BST），在隨機插入資料的情況下，觀察樹的高度隨節點數 n 的變化。
 - 對多個不同的節點數 𝑛（100 ~ 10000）進行測試
 - 每個 𝑛：
    - 重複進行 50 次實驗（TRIALS）
@@ -216,18 +216,39 @@ int main() {
    - $\log_2 n$
 - 輸出：
    - 平均高度
-   - 比值：avgH/ $\log_2 n$ v
+   - 比值：avgH/ $\log_2 n$
+
+  
+(b) 寫一個 C++ 函數，從二元搜尋樹中刪除鍵為 k 的鍵值對。該函數的時間複雜度。
 ### 解題策略
+(a)
 - 使用隨機輸入模擬「平均情況」
 - 多次實驗降低誤差
 - 用 log₂(n) 作為理論基準
-- 比值分析: avgH/ $\log_2 n$ 
-## 程式實作
+- 比值分析: avgH/ $\log_2 n$
 
+(b)
+刪除節點
+- 先用 BST 性質找到要刪的節點
+   - 若 k < node->key：要刪的在左子樹 → 遞迴/迭代往左
+   - 若 k > node->key：在右子樹 → 往右
+   - 若相等：找到了要刪的節點
+  
+- 找到目標節點後，分 3 大類
+   - 情況 A：沒有子節點（葉子）:直接 delete node，回傳 NULL（表示這個位置變空）
+   - 情況 B：只有一個子節點:
+      - 如果只有右子樹：用右子樹接回來（回傳 node->right）
+      - 如果只有左子樹：用左子樹接回來（回傳 node->left）
+      - 然後把原本 node delete
+   - 情況 C：左右子樹都有 常見兩種標準作法，擇一即可：
+      - 用「右子樹最小值」 取代或用「左子樹最大值」 取代 對稱作法
+  
+## 程式實作
+(a)
 ### IDE:
 Microsoft Visual Studio Code C/C++
 
-(a)
+
 ```cpp
 #include <algorithm>
 #include <cmath>
@@ -346,18 +367,68 @@ int main() {
     return 0;
 }
 ```
-(b)
+(b)在(a)裡面增加
 ```cpp
-BST demo;
-int vals[] = {50, 30, 70, 20, 40, 60, 80};
-for (int i = 0; i < 7; i++) demo.insert(vals[i]);
+struct Node {
+    int key;
+    Node* left;
+    Node* right;
+    explicit Node(int k) : key(k), left(NULL), right(NULL) {}
+};
 
-demo.erase(70);
+class BST {
+public:
+    BST() : root(NULL) {}
 
-std::fprintf(stderr, "height after erase(70) = %d\n", demo.height());
+   
+    void erase(int key) { root = deleteRec(root, key); }
+
+private:
+    Node* root;
+
+   
+    static Node* findMin(Node* node) {
+        while (node && node->left) node = node->left;
+        return node;
+    }
+
+    
+    static Node* deleteRec(Node* node, int key) {
+        if (node == NULL) return NULL;
+
+        if (key < node->key) {
+            node->left = deleteRec(node->left, key);
+        } else if (key > node->key) {
+            node->right = deleteRec(node->right, key);
+        } else {
+            
+            if (node->left == NULL && node->right == NULL) {
+                
+                delete node;
+                return NULL;
+            } else if (node->left == NULL) {
+               
+                Node* r = node->right;
+                delete node;
+                return r;
+            } else if (node->right == NULL) {
+               
+                Node* l = node->left;
+                delete node;
+                return l;
+            } else {
+                
+                Node* succ = findMin(node->right);
+                node->key = succ->key;
+                node->right = deleteRec(node->right, succ->key);
+            }
+        }
+        return node;
+    }
+};
 ```
-
 ## 效能分析
+(a)
 空間複雜度：
 | 類型              | 複雜度             |
 | --------------- | --------------- |
@@ -368,11 +439,15 @@ std::fprintf(stderr, "height after erase(70) = %d\n", demo.height());
  |操作      | 平均時間     | 最壞時間 |
 | ------- | -------- | ---- |
 | insert  | O(log n) | O(n) |
-| delete  | O(log n) | O(n) |
 | findMin | O(log n) | O(n) |
 | height  | O(n)     | O(n) |
 | clear   | O(n)     | O(n) |
 
+(b)
+時間複雜度： 
+|操作      | 平均時間     | 最壞時間 |
+| ------- | -------- |  -------- | 
+| delete  | O(log n) | O(n) |
 
 ## 測試與驗證
 
@@ -412,8 +487,8 @@ n,height_avg,ratio_height_over_log2n
 ```
 
 ### 結論
-本實驗透過對不同規模 𝑛的資料進行隨機插入，建立多棵 Binary Search Tree（BST），並計算其平均高度，進一步與 
-  $\log_2 ​(n) $ 進行比較分析。
+本實驗透過對不同規模𝑛的資料進行隨機插入，建立多棵 Binary Search Tree（BST），並計算其平均高度，進一步與 
+  $\log_2$(n) 進行比較分析。
 
 ## 申論及開發報告
 本實驗不僅實作 BST，更重要的是透過實驗方式驗證理論分析結果。
@@ -421,3 +496,13 @@ n,height_avg,ratio_height_over_log2n
 - 平均高度隨 𝑛增加呈現緩慢上升
 - 與 log⁡𝑛成長趨勢一致
 - 比值趨於穩定常數
+### 優點
+- 能驗證理論（log n 成長）
+- 使用隨機化，貼近實務情境
+- 多次實驗提高準確性
+- 實作簡單、易於擴充
+### 缺點
+- 高度計算成本高
+- 亂數品質有限
+- 記憶體與遞迴風險
+
