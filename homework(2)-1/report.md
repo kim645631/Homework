@@ -255,6 +255,7 @@ Microsoft Visual Studio Code C/C++
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+using namespace std;
 
 struct Node {
     int key;
@@ -332,21 +333,21 @@ private:
 };
 
 static int uniformKey(int KEY_MAX) {
-    unsigned int a = (unsigned int)std::rand();
-    unsigned int b = (unsigned int)std::rand();
+    unsigned int a = (unsigned int)rand();
+    unsigned int b = (unsigned int)rand();
     unsigned int x = (a << 16) ^ b;
     return (int)(x % (unsigned int)KEY_MAX) + 1;
 }
 
 int main() {
-    std::srand(123456);
+    srand(123456);
     const int TRIALS = 50;
     const int KEY_MAX = 1000000000;
 
     int ns[] = { 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000 };
     int m = (int)(sizeof(ns) / sizeof(ns[0]));
 
-    std::cout << "n,avgH,avgH/log2n\n";
+    cout << "n,avgH,avgH/log2n\n";
 
     for (int idx = 0; idx < m; idx++) {
         int n = ns[idx];
@@ -359,10 +360,10 @@ int main() {
         }
 
         double avgH = sumH / TRIALS;
-        double log2n = std::log((double)n) / std::log(2.0);
+        double log2n = log((double)n) / log(2.0);
         double ratio = avgH / log2n;
 
-        std::printf("%d,%.6f,%.6f\n", n, avgH, ratio);
+        printf("%d,%.6f,%.6f\n", n, avgH, ratio);
     }
     return 0;
 }
