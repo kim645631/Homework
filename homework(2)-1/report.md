@@ -5,7 +5,7 @@
 ## 解題說明
 將課堂所學的MaxHeap實作MinHeap並以MinPQ的架構去編寫
 ### 解題策略
-目標:把輸入的 n 個整數，依照「由小到大」排序並輸出
+目標:把輸入的 n 個整數，依照「由小到大」並以樹的排序方式輸出
 1. 先定義 ADT：MinPQ<T>（抽象類別）
    
    - IsEmpty()：判斷是否為空
@@ -47,7 +47,7 @@ public:
 template <class T>
 class MinHeap : public MinPQ<T> {
 private:
-    T* heap;        // 1-based: heap[1] is min
+    T* heap;       
     int heapSize;
     int capacity;
 
@@ -102,7 +102,7 @@ public:
         int child = 2;
 
         while (child <= heapSize) {
-            if (child < heapSize && heap[child] > heap[child + 1]) child++; // smaller child
+            if (child < heapSize && heap[child] > heap[child + 1]) child++;
             if (lastE <= heap[child]) break;
 
             heap[currentNode] = heap[child];
@@ -110,6 +110,14 @@ public:
             child *= 2;
         }
         heap[currentNode] = lastE;
+    }
+
+    void PrintArray() const {
+        for (int i = 1; i <= heapSize; i++) {
+            cout << heap[i];
+            if (i != heapSize) cout << " ";
+        }
+        cout << "\n";
     }
 };
 
@@ -128,37 +136,39 @@ int main() {
         h.Push(x);
     }
 
-    while (!h.IsEmpty()) {
-        cout << h.Top();
-        h.Pop();
-        if (!h.IsEmpty()) cout << " ";
-    }
-    cout << "\n";
+    h.PrintArray();
+
     return 0;
 }
 ```
 
 ## 效能分析
 1. 空間複雜度：
-- O(n)
+- 總空間複雜度：O(n)
 2. 時間複雜度：
 - IsEmpty()：O(1)
 - Top()：O(1)
 - Push(x)：O(log n)
 - Pop()：O(log n)
+- PrintArray():O(n)
 ## 測試與驗證
 
 ### 測試案例 
 
-| 測試案例 | 輸入參數  | 預期輸出 | 實際輸出 |
+| 測試案例 | 輸入參數   | 預期輸出 | 實際輸出 |
 |----------|--------------|----------|----------|
-| 測試一   |5   | 3        | 3        |
+| 測試一   |5 1 3 8 5 6   | 1 5 3 8 6     |  1 5 3 8 6        |
 
 
-### 編譯與執行指令
 
-```shell
-
+### 測試輸入
+```
+5
+5 3 1 8 6
+```
+### 測試輸出
+```
+1 5 3 8 6
 ```
 ### 結論
 本次作業以Min-Heap實作最小優先佇列 MinPQ。利用堆的性質可讓最小值永遠位於根節點heap[1]，使用:
@@ -238,8 +248,8 @@ public:
     ~BST() { clear(root); }
 
     void insert(int key) { root = insertRec(root, key); }
-    void erase(int key)  { root = deleteRec(root, key); }
-    int height() const   { return heightRec(root); }
+    void erase(int key) { root = deleteRec(root, key); }
+    int height() const { return heightRec(root); }
 
 private:
     Node* root;
@@ -248,11 +258,11 @@ private:
         if (node == NULL) return new Node(key);
         if (key < node->key) node->left = insertRec(node->left, key);
         else if (key > node->key) node->right = insertRec(node->right, key);
-        return node; // key 相同：不插入
+        return node; 
     }
 
     static int heightRec(Node* node) {
-        if (node == NULL) return 0; // 空樹高度 0（節點數定義）
+        if (node == NULL) return 0;
         int hl = heightRec(node->left);
         int hr = heightRec(node->right);
         return 1 + (hl > hr ? hl : hr);
@@ -272,15 +282,18 @@ private:
             if (node->left == NULL && node->right == NULL) {
                 delete node;
                 return NULL;
-            } else if (node->left == NULL) {
+            }
+            else if (node->left == NULL) {
                 Node* r = node->right;
                 delete node;
                 return r;
-            } else if (node->right == NULL) {
+            }
+            else if (node->right == NULL) {
                 Node* l = node->left;
                 delete node;
                 return l;
-            } else {
+            }
+            else {
                 Node* succ = findMin(node->right);
                 node->key = succ->key;
                 node->right = deleteRec(node->right, succ->key);
@@ -297,24 +310,19 @@ private:
     }
 };
 
-// 產生 [1, KEY_MAX] 的均勻亂數（用 rand()）
-// 注意：rand() 的 RAND_MAX 有上限，所以用「拼接位元」讓範圍更大一點
 static int uniformKey(int KEY_MAX) {
     unsigned int a = (unsigned int)std::rand();
     unsigned int b = (unsigned int)std::rand();
-    unsigned int x = (a << 16) ^ b; // 混合兩次 rand()
+    unsigned int x = (a << 16) ^ b;
     return (int)(x % (unsigned int)KEY_MAX) + 1;
 }
 
 int main() {
-    // 用時間當 seed（也可改固定 seed 方便重現）
-    std::srand(123456); // 想要每次結果不同可用：std::srand((unsigned)std::time(NULL));
-                        // 但 time() 需要 <ctime>，你沒列，所以這裡用固定 seed
-
+    std::srand(123456); 
     const int TRIALS = 50;
     const int KEY_MAX = 1000000000;
 
-    int ns[] = {100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000};
+    int ns[] = { 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000 };
     int m = (int)(sizeof(ns) / sizeof(ns[0]));
 
     std::cout << "n,height_avg,ratio_height_over_log2n\n";
@@ -335,19 +343,16 @@ int main() {
 
         std::printf("%d,%.6f,%.6f\n", n, avgH, ratio);
     }
-
-    // (b) delete：BST::erase(key)，時間複雜度 O(h)（平均 O(log n)，最壞 O(n)）
     return 0;
 }
 ```
 (b)
 ```cpp
-// (b) demo：刪除 key = 70
 BST demo;
 int vals[] = {50, 30, 70, 20, 40, 60, 80};
 for (int i = 0; i < 7; i++) demo.insert(vals[i]);
 
-demo.erase(70); // <-- (b) delete pair with key k (這裡只有 key)
+demo.erase(70);
 
 std::fprintf(stderr, "height after erase(70) = %d\n", demo.height());
 ```
@@ -373,7 +378,7 @@ std::fprintf(stderr, "height after erase(70) = %d\n", demo.height());
 
 ### 測試案例
 
-| 測資 | 輸入參數 n| 預期輸出  avgH, avgH/ $\log_2 n$ | 實際輸出avgH, avgH/ $\log_2 n$  |
+| 測資 | 輸入參數n (題目自訂)| 預期輸出  avgH, avgH/ $\log_2 n$ | 實際輸出avgH, avgH/ $\log_2 n$  |
 |----------|--------------|----------|----------|
 | 測試一   |100|   13.240000 ,1.992819  |   13.240000 ,1.992819 |
 | 測試二   | 500 |  19.360000,2.159320 |   19.360000,2.159320   |
@@ -388,12 +393,22 @@ std::fprintf(stderr, "height after erase(70) = %d\n", demo.height());
 | 測試十一  |9000 |30.720000,2.338663 | 30.720000,2.338663 |
 | 測試十二   | 10000| 30.960000,2.329972|30.960000,2.329972  |
 
-### 編譯與執行指令
+### 測試輸出
 
-```shell
-$ g++ pow.cpp -std=c++17 -o pow.exe
-$ .\pow.exe
-
+```
+n,height_avg,ratio_height_over_log2n
+100,13.240000,1.992819
+500,19.360000,2.159320
+1000,21.920000,2.199526
+2000,24.800000,2.261580
+3000,26.240000,2.271715
+4000,27.400000,2.289862
+5000,28.120000,2.288465
+6000,29.020000,2.312213
+7000,30.000000,2.348679
+8000,30.040000,2.316867
+9000,30.720000,2.338663
+10000,30.960000,2.329972
 ```
 
 ### 結論
