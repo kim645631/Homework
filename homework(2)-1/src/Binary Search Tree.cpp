@@ -89,7 +89,6 @@ static int uniformKey(int KEY_MAX) {
 
 int main() {
     srand(123456);
-    const int TRIALS = 50;
     const int KEY_MAX = 1000000000;
 
     int ns[] = { 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000 };
@@ -99,19 +98,15 @@ int main() {
 
     for (int idx = 0; idx < m; idx++) {
         int n = ns[idx];
-        double sumH = 0.0;
+        BST tree;
+        for (int i = 0; i < n; i++) tree.insert(uniformKey(KEY_MAX));
+        
 
-        for (int t = 0; t < TRIALS; t++) {
-            BST tree;
-            for (int i = 0; i < n; i++) tree.insert(uniformKey(KEY_MAX));
-            sumH += tree.height();
-        }
-
-        double avgH = sumH / TRIALS;
+        double avgH = (double)tree.height();
         double log2n = log((double)n) / log(2.0);
         double ratio = avgH / log2n;
 
-        printf("%d,%.6f,%.6f\n", n, avgH, ratio);
+        printf("%d,%g,%.6f\n", n, avgH, ratio);
     }
     return 0;
 }
