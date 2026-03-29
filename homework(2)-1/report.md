@@ -11,7 +11,7 @@
    - IsEmpty()：判斷是否為空
    - Top()：回傳目前最小值
    - Push(x)：插入元素
-   - Pop()：刪除最小值
+   - Pop()：刪除原本最小值
   
 2. 實作 MinPQ<T>：class MinHeap : public MinPQ<T>
 資料結構選擇：
