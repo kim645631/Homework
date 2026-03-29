@@ -94,7 +94,7 @@ int main() {
     int ns[] = { 100, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000 };
     int m = (int)(sizeof(ns) / sizeof(ns[0]));
 
-    cout << "n,avgH,avgH/log2n\n";
+    cout << "n,H,H/log2n\n";
 
     for (int idx = 0; idx < m; idx++) {
         int n = ns[idx];
@@ -102,11 +102,11 @@ int main() {
         for (int i = 0; i < n; i++) tree.insert(uniformKey(KEY_MAX));
         
 
-        double avgH = (double)tree.height();
+        double H = (double)tree.height();
         double log2n = log((double)n) / log(2.0);
-        double ratio = avgH / log2n;
+        double ratio = H / log2n;
 
-        printf("%d,%g,%.6f\n", n, avgH, ratio);
+        printf("%d,%g,%.6f\n", n, H, ratio);
     }
     return 0;
 }
