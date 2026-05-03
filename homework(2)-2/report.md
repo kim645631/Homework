@@ -1,41 +1,38 @@
-# 41343112 and 41343121
+# 41343112
+# 41343121
 
 ## 作業二 Graph
 
 ## 解題說明
-- 圖的表示方式（Adjacency Matrix、Adjacency List）
+本題主要目標是實作圖(Graph)資料結構與相關演算法，內容包含：
+- 圖的抽象資料型態（ADT）
+- 圖的表示方式（Adjacency List）
 - 圖的走訪（DFS、BFS）
 - 連通元件（Connected Components）
-- 最小生成樹（Kruskal）
+- 最小生成樹（Kruskal、Prim）
 - 最短路徑（Dijkstra）
 
-目標是透過程式實作，理解圖在資料結構中的應用與運作方式。
+本程式分為兩個主要部分：
+1. **無權重圖（LinkedGraph）**：使用 adjacency list 表示圖，並實作 DFS、BFS、Connected Components。
+2. **加權無向圖（WeightedGraph）**：使用 adjacency list（鄰點, 權重）表示圖，並實作 Prim、Kruskal 取得 MST，以及 Dijkstra 取得單源最短路徑。
+
+
 
 
 ### 解題策略
-### 🔹 Graph Representation
-- 使用 adjacency matrix 表示密集圖
-- 使用 adjacency list 表示稀疏圖
-
-### 🔹 DFS（Depth First Search）
-- 採用遞迴方式
-- 利用 visited 陣列避免重複拜訪
-
-### 🔹 BFS（Breadth First Search）
-- 使用 queue
-- 適合找最短路徑（無權重）
-
-### 🔹 Connected Components
-- 對每個未訪問節點執行 DFS
-- 計算 DFS 呼叫次數
-
-### 🔹 Kruskal（MST）
-- 先排序所有邊（由小到大）
-- 使用 Union-Find 避免形成 cycle
-
-### 🔹 Dijkstra（Shortest Path）
-- 使用 priority queue
-- 每次選擇最短距離節點進行擴展
+1. **先設計 Graph ADT**
+   - 以抽象類別 `Graph` 定義圖的基本操作介面（頂點/邊數、度數、插入邊/點等），讓後續不同表示法可共用同一套介面概念。
+2. **使用 Adjacency List 作為圖的表示**
+   - 對於稀疏圖（邊數遠小於 V²），Adjacency List 記憶體使用量較佳，走訪鄰居也較直接。
+3. **走訪演算法**
+   - DFS：遞迴方式實作，並以 `visited[]` 防止重複走訪。
+   - BFS：用 queue 進行層級式擴展。
+4. **Connected Components**
+   - 對每個尚未 visited 的頂點進行一次 DFS，即可得到一個連通元件。
+5. **加權圖演算法**
+   - Prim：使用 min-priority queue（C++ priority_queue + greater）每次挑最小權重邊擴展 MST。
+   - Kruskal：先排序所有邊，再用 Union-Find（Disjoint Set）避免形成 cycle。
+   - Dijkstra：用 min-priority queue 每次取出目前距離最短的節點進行 relax（權重需為非負）。
 
 
 ## 程式實作
@@ -369,6 +366,27 @@ int main() {
 ```
 
 ## 效能分析
+(V) = 頂點數、(E) = 邊數
+### 時間複雜度
+| 名稱                  | 時間複雜度                  |
+|-----------------------|-----------------------------|
+|DFS| O(V+E)|
+|BFS|O(V+E)|
+|Connected Components|O(V+E)|
+|Prim|O(E log E)（也可寫成 O(E log V)）|
+|Kruskal|O(E log E)|
+|Dijkstra|O((V+E) log V)|
+
+### 空間複雜度
+| 名稱                 | 空間複雜度                  |
+|-----------------------|-----------------------------|
+|Adjacency List| O(V+E)|
+|DFS| O(V)|
+|BFS|O(V)|
+|Connected Components|O(V)|
+|Prim|O(V+E) (pq 最差 O(E))|
+|Kruskal|O(V+E)|
+|Dijkstra|O(V+E)|
 
 ## 測試與驗證
 
@@ -382,15 +400,64 @@ int main() {
 
 
 
-### 測試輸入
-```
 
-```
 ### 測試輸出
 ```
+=== Graph Operations ===
+DFS traversal starting from 0: 0 1 3 4 2
+BFS traversal starting from 0: 0 1 2 3 4
+--- Connected Components ---
+Component found: 0 1 3 4 2
 
+=== Weighted Graph Algorithms ===
+
+--- Prim's Algorithm ---
+Added vertex 0 with edge weight 0
+Added vertex 3 with edge weight 5
+Added vertex 2 with edge weight 4
+Added vertex 1 with edge weight 10
+Total Minimum Cost (Prim): 19
+
+--- Kruskal's Algorithm ---
+Include edge (2 - 3) with weight 4
+Include edge (0 - 3) with weight 5
+Include edge (0 - 1) with weight 10
+Total Minimum Cost (Kruskal): 19
+
+--- Shortest Paths (Dijkstra) ---
+Shortest distance from 0 to 0 is: 0
+Shortest distance from 0 to 1 is: 10
+Shortest distance from 0 to 2 is: 6
+Shortest distance from 0 to 3 is: 5
 ```
 ### 結論
+本作業以 adjacency list 完成圖的表示，並實作 DFS、BFS 與連通元件判定；在加權圖部分，完成 Prim 與 Kruskal 兩種最小生成樹演算法，並以 Dijkstra 完成單源最短路徑計算。測試結果顯示：
+- DFS/BFS 均可正確走訪圖
+- Connected Components 可正確辨識連通元件
+- Prim 與 Kruskal 的 MST 最小成本一致
+- Dijkstra 可得到符合預期的最短距離
 
+---
 
 ## 申論及開發報告
+
+### (1) 為何選 adjacency list？
+相較於 adjacency matrix（V² 記憶體），adjacency list 更適合本題常見的稀疏圖，記憶體約為 O(V+E)，且 DFS/BFS 對鄰點走訪效率高。
+
+### (2) DFS 與 BFS 的差異
+- DFS 適合用於探索、connected components、拓樸性質（本題用於 components）。
+- BFS 可得到「層級式」走訪順序，對無權重最短路徑有直接關係（本題僅示範走訪）。
+
+### (3) MST 為何要兩種算法？
+- Prim：偏向「從一點擴展」，常用於 adjacency list + priority queue 的情境。
+- Kruskal：偏向「從最小邊開始挑」，以 Union-Find 避免 cycle，適合邊集合容易排序的情境。
+兩者計算出的 MST 成本應一致，可互相驗證正確性。
+
+### (4) Dijkstra 的限制與注意事項
+Dijkstra 需要邊權重非負，否則貪婪選擇不成立。本作業測試邊權重皆為正，因此適用。
+
+### (5) 可改進項目
+- Graph ADT 中 `DeleteVertex` / `DeleteEdge` 目前未實作，可補上以符合完整 ADT。
+- `InsertEdge` 可增加防重複邊（避免 adjacency list 出現重複鄰點，與 e 計數錯誤）。
+- `visited` 可改用 `vector<bool>` 或 `vector<char>` 以避免手動 new/delete，提高安全性。
+- Prim 若要輸出「實際選到的邊」，可在 pq 中存 parent 資訊（例如 (cost, v, parent)）。
