@@ -168,7 +168,7 @@ public:
         for (int i = 0; i < n; i++) {
             if (!vis[i]) {
                 cout << "Component found: ";
-                DFS_Component(i);
+                DFS_C(i);
                 cout << endl;
             }
         }
@@ -177,13 +177,13 @@ public:
     }
 
 private:
-    void DFS_Component(int v) {
+    void DFS_C(int v) {
         if (v < 0 || v >= n) return;
         vis[v] = true;
         cout << v << " ";
         for (int w : List[v]) {
             if (!vis[w]) {
-                DFS_Component(w);
+                DFS_C(w);
             }
         }
     }
@@ -236,7 +236,7 @@ public:
         };
 
         cout << "\n--- Kruskal's Algorithm ---" << endl;
-        int min = 0;
+        int minC = 0;
         int edgeC = 0;
 
         for (const auto& edge : edges) {
@@ -245,21 +245,21 @@ public:
 
             if (root_u != root_v) {
                 cout << "Include edge (" << edge.u << " - " << edge.v << ") with weight " << edge.weight << endl;
-                min += edge.weight;
+                minC += edge.weight;
                 parent[root_u] = root_v;
                 edgeC++;
                 if (edgeC == n - 1) break;
             }
         }
-        cout << "Total Minimum Cost (Kruskal): " << min << endl;
+        cout << "Total Minimum Cost (Kruskal): " << minC << endl;
     }
     void Prim() {
         vector<bool> inMST(n, false);
         priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
 
-        int startVertex = 0;
-        pq.push({ 0, startVertex });
-        int minCost = 0;
+        int startV = 0;
+        pq.push({ 0, startV });
+        int minC = 0;
 
         cout << "\n--- Prim's Algorithm ---" << endl;
 
@@ -272,7 +272,7 @@ public:
             if (inMST[u]) continue;
 
             inMST[u] = true;
-            minCost += weight;
+            minC += weight;
             cout << "Added vertex " << u << " with edge weight " << weight << endl;
 
             for (auto& neighbor : List[u]) {
@@ -283,7 +283,7 @@ public:
                 }
             }
         }
-        cout << "Total Minimum Cost (Prim): " << minCost << endl;
+        cout << "Total Minimum Cost (Prim): " << minC << endl;
     }
 
     void Dijkstra(int start) {
@@ -348,5 +348,4 @@ int main() {
     wg.Dijkstra(0);
 
     return 0;
-    
 }
