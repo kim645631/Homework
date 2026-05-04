@@ -13,16 +13,16 @@
 - 單源最短路徑：Dijkstra
 
 程式主要分為兩個部分：
-1. **無權重無向圖（LinkedGraph）**  
+1. **無權重無向圖（LinkedGraph）**
    使用 adjacency list 圖的結構，提供基本的插入與刪除操作，並實作 DFS、BFS，以及 Connected Components。
 2. **加權無向圖（WeightedGraph）**  
    以 adjacency list 儲存（包括鄰點和權重），並實作 Prim 與 Kruskal 求最小生成樹，以及 Dijkstra 求單源最短路徑。
 
 
 ### 解題策略
-1. **設計 Graph ADT，統一操作介面**
-   - 以抽象類別 `Graph` 用來定義頂點數、邊數、查詢、插入與刪除等基本操作。
-   - 透過統一介面讓不同圖型態（如 LinkedGraph）都能遵循一致規範，提升程式的擴充性和維護性。
+1. **設計 Graph ADT，定義無權重圖的基本操作介面**
+   - 以抽象類別 `Graph` 定義頂點數、邊數、查詢、插入與刪除等基本操作，作為無權重圖（LinkedGraph）的共同介面。
+   - 加權圖因需處理權重邊與 MST/最短路徑等操作，故以 `WeightedGraph` 類別獨立實作相關演算法。
 
 2. **採用 Adjacency List 表示圖**
    - 相較於 adjacency matrix，鄰接串列在稀疏圖情境下更具效率與記憶體節省特性。
@@ -408,7 +408,7 @@ int main() {
 |DFS| O(V+E)|
 |BFS|O(V+E)|
 |Connected Components|O(V+E)|
-|Prim|O(E log E)（也可寫成 O(E log V)）|
+|Prim|O(E log V)|
 |Kruskal|O(E log E)|
 |Dijkstra|O((V+E) log V)|
 
@@ -426,16 +426,16 @@ int main() {
 ## 測試與驗證
 ### 無權重無向圖（LinkedGraph）
  建立 5 個頂點（0~4），並加入邊：
-- (0,1), (0,2), (1,3), (3,4)
+(0,1), (0,2), (1,3), (3,4)
 ```
 0 - 1
 |   |
 2   3 - 4
 ```
 測試項目：
-1. `DFS()`
-2. `BFS(0)`
-3. `Components()`
+1. DFS()
+2. BFS(0)
+3. Components()
 
 #### 預期輸出
 ```
@@ -454,7 +454,7 @@ Component found: 0 1 3 4 2
 ---
 ### 加權無向圖（WeightedGraph）
  建立 4 個頂點（0~3），並加入加權邊：
-- (0,1)=10, (0,2)=6, (0,3)=5, (1,3)=15, (2,3)=4
+(0,1)=10, (0,2)=6, (0,3)=5, (1,3)=15, (2,3)=4
 ```
  0 -(10)-1
  | \     |
@@ -463,9 +463,9 @@ Component found: 0 1 3 4 2
  2 -(4)- 3
 ```
 測試項目：
-1. `Prim()`
-2. `Kruskal()`
-3. `Dijkstra(0)`
+1. Prim()
+2. Kruskal()
+3. Dijkstra(0)
 #### 預期輸出
 ```
 Prim Total Cost: 19
@@ -535,25 +535,7 @@ Shortest distance from 0 to 3 is: 5
 
 ## 申論及開發報告
 
-### 為何選擇 Adjacency List？
-本實作採用 **adjacency list** 作為圖的表示方式。相較於 adjacency matrix 需 **O(V²)** 的空間複雜度，adjacency list 僅需 **O(V + E)**，在稀疏圖（**E ≪ V²**）情況下能大幅降低記憶體使用量。
-
-此外，adjacency list 在列舉鄰接節點時效率較高，特別適合 **DFS** 與 **BFS** 等走訪演算法。因此，選擇 adjacency list 作為主要資料結構，以兼顧效率與空間使用。
-
----
-
-### 為何同時實作 Prim 與 Kruskal？
-Prim 與 Kruskal 皆為求解 **最小生成樹（MST）** 的演算法，但其策略不同：
-
-- **Prim 演算法**：從單一節點開始，逐步擴展生成樹
-- **Kruskal 演算法**：依邊的權重排序，逐步選擇不形成環的邊
-
-兩者在不同圖結構下各有優勢：
-
-- Prim 適合使用 adjacency list
-- Kruskal 適合邊集合明確、方便排序的情境
-
-同時實作兩者，並透過比較其結果（**MST 總權重一致**）來驗證演算法的正確性。
+這次作業採用 adjacency list 的資料結構，兼顧稀疏圖的空間效率與走訪效能；無權重圖部分以 Graph ADT 規範基本操作並完成 DFS、BFS 與連通元件。加權圖部分則以 WeightedGraph 儲存（鄰點、權重），並實作 Prim、Kruskal 的最小生成樹以及 Dijkstra 的單源最短路徑。透過 Prim 與 Kruskal 得到相同的 MST 總成本作為交叉驗證，可確認整體結果具一致性；Dijkstra 的最短距離也符合預期。未來若要提升完整度，可將加權圖的介面也納入更一致的 ADT 設計，並加入最短路徑回溯。
 
 ---
 ### 優缺點
