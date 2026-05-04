@@ -13,7 +13,8 @@
 - 單源最短路徑：Dijkstra
 - AOV 網路（Activity On Vertex）：拓撲排序（Topological Sort / Kahn 入度法）
 - AOE 網路（Activity On Edge）：事件最早時間（ve）與專案最早完工時間
-程式主要分為兩個部分：
+
+程式主要分為三個部分：
 1. **無權重無向圖（LinkedGraph）**
    使用 adjacency list 圖的結構，提供基本的插入與刪除操作，並實作 DFS、BFS，以及 Connected Components。
 2. **加權無向圖（WeightedGraph）**  
