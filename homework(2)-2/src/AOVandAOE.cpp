@@ -6,27 +6,27 @@
 
 using namespace std;
 
-class AOVNetwork {
+class AOV {
 private:
     int n;
-    vector<vector<int>> adjList;
+    vector<vector<int>> List;
 
 public:
-    AOVNetwork(int vertices) : n(vertices) {
-        adjList.resize(vertices);
+    AOV(int vertices) : n(vertices) {
+        List.resize(vertices);
     }
 
     void AddEdge(int u, int v) {
         if (u < n && v < n) {
-            adjList[u].push_back(v);
+            List[u].push_back(v);
         }
     }
 
-    void TopologicalSort() {
+    void TSort() {
         vector<int> inDegree(n, 0);
 
         for (int u = 0; u < n; u++) {
-            for (int v : adjList[u]) {
+            for (int v : List[u]) {
                 inDegree[v]++;
             }
         }
@@ -44,7 +44,7 @@ public:
             q.pop();
             topOrder.push_back(u);
 
-            for (int v : adjList[u]) {
+            for (int v : List[u]) {
                 inDegree[v]--;
                 if (inDegree[v] == 0) {
                     q.push(v);
@@ -70,19 +70,19 @@ struct AOEEdge {
     int u, v, weight;
 };
 
-class AOENetwork {
+class AOE {
 private:
     int n;
     vector<AOEEdge> edges;
 
 public:
-    AOENetwork(int vertices) : n(vertices) {}
+    AOE(int vertices) : n(vertices) {}
 
     void AddEdge(int u, int v, int weight) {
         edges.push_back({ u, v, weight });
     }
 
-    void CalculateEarliestTime() {
+    void Time() {
         vector<int> earliest(n, 0);
 
         for (const auto& edge : edges) {
@@ -99,20 +99,20 @@ public:
 };
 
 int main() {
-    AOVNetwork aov(4);
+    AOV aov(4);
     aov.AddEdge(0, 1);
     aov.AddEdge(0, 2);
     aov.AddEdge(1, 3);
     aov.AddEdge(2, 3);
-    aov.TopologicalSort();
+    aov.TSort();
 
 
-    AOENetwork aoe(4);
+    AOE aoe(4);
     aoe.AddEdge(0, 1, 5);
     aoe.AddEdge(0, 2, 3);
     aoe.AddEdge(1, 3, 4);
     aoe.AddEdge(2, 3, 6);
-    aoe.CalculateEarliestTime();
+    aoe.Time();
 
     return 0;
 }
