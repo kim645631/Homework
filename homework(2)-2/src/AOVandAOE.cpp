@@ -55,7 +55,8 @@ public:
         cout << "\n--- AOV Network Topological Sort ---" << endl;
         if (topOrder.size() != n) {
             cout << "錯誤：AOV 網路中包含迴圈，無法進行拓撲排序！" << endl;
-        } else {
+        }
+        else {
             cout << "執行順序：";
             for (int node : topOrder) {
                 cout << node << " ";
@@ -78,7 +79,7 @@ public:
     AOENetwork(int vertices) : n(vertices) {}
 
     void AddEdge(int u, int v, int weight) {
-        edges.push_back({u, v, weight});
+        edges.push_back({ u, v, weight });
     }
 
     void CalculateEarliestTime() {
