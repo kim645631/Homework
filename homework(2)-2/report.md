@@ -11,12 +11,16 @@
 - 連通元件（Connected Components）
 - 最小生成樹（MST）：Prim、Kruskal
 - 單源最短路徑：Dijkstra
-
+- AOV 網路（Activity On Vertex）：拓撲排序（Topological Sort / Kahn 入度法）
+- AOE 網路（Activity On Edge）：事件最早時間（ve）與專案最早完工時間
 程式主要分為兩個部分：
 1. **無權重無向圖（LinkedGraph）**
    使用 adjacency list 圖的結構，提供基本的插入與刪除操作，並實作 DFS、BFS，以及 Connected Components。
 2. **加權無向圖（WeightedGraph）**  
    以 adjacency list 儲存（包括鄰點和權重），並實作 Prim 與 Kruskal 求最小生成樹，以及 Dijkstra 求單源最短路徑。
+3. **有向網路（AOV / AOE）**
+   - **AOV**：以「頂點代表活動、邊代表相依」，使用拓撲排序，輸出執行順序，並能偵測是否存在迴圈。
+   - **AOE**：以「邊代表活動（含工期）、頂點代表事件」，本次示範計算事件最早時間 ve，並以終點事件的最大 ve 作為專案最早完工時間輸出。
 
 
 ### 解題策略
@@ -40,7 +44,9 @@
    - **Prim（MST）**：每次挑選可擴展生成樹的最小權重邊（或最小代價節點）加入 MST。
    - **Kruskal（MST）**：先將所有邊依權重排序，再使用 Union-Find 判斷是否成環，能加入則加入，直到邊數達到 `V-1`。
    - **Dijkstra（最短路徑）**：每次取出目前距離最短的節點進行 relax 更新；適用於邊權重皆為非負的情況。
-
+6. **AOV 與 AOE 網路演算法**
+   - **AOV（拓撲排序）**：使用 Kahn 入度法，從入度為 0 的節點開始依序輸出；若輸出數量不足 `V`，表示有迴圈無法排序。
+   - **AOE（事件最早時間 ve）**：本次僅計算事件最早時間 ve。對每條活動邊 (u→v, w)，用 ve[v] = max(ve[v], ve[u] + w) 更新，最後以終點事件（或所有事件）的最大 ve 作為專案最早完工時間。
 ## 程式實作
 
 ### IDE:
@@ -399,7 +405,127 @@ int main() {
     return 0;
 }
 ```
+### AOV and AOE
+```cpp
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <stack>
 
+using namespace std;
+
+class AOVNetwork {
+private:
+    int n;
+    vector<vector<int>> adjList;
+
+public:
+    AOVNetwork(int vertices) : n(vertices) {
+        adjList.resize(vertices);
+    }
+
+    void AddEdge(int u, int v) {
+        if (u < n && v < n) {
+            adjList[u].push_back(v);
+        }
+    }
+
+    void TopologicalSort() {
+        vector<int> inDegree(n, 0);
+
+        for (int u = 0; u < n; u++) {
+            for (int v : adjList[u]) {
+                inDegree[v]++;
+            }
+        }
+
+        queue<int> q;
+        for (int i = 0; i < n; i++) {
+            if (inDegree[i] == 0) {
+                q.push(i);
+            }
+        }
+
+        vector<int> topOrder;
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+            topOrder.push_back(u);
+
+            for (int v : adjList[u]) {
+                inDegree[v]--;
+                if (inDegree[v] == 0) {
+                    q.push(v);
+                }
+            }
+        }
+
+        cout << "\n--- AOV Network Topological Sort ---" << endl;
+        if (topOrder.size() != n) {
+            cout << "錯誤：AOV 網路中包含迴圈，無法進行拓撲排序！" << endl;
+        }
+        else {
+            cout << "執行順序：";
+            for (int node : topOrder) {
+                cout << node << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+struct AOEEdge {
+    int u, v, weight;
+};
+
+class AOENetwork {
+private:
+    int n;
+    vector<AOEEdge> edges;
+
+public:
+    AOENetwork(int vertices) : n(vertices) {}
+
+    void AddEdge(int u, int v, int weight) {
+        edges.push_back({ u, v, weight });
+    }
+
+    void CalculateEarliestTime() {
+        vector<int> earliest(n, 0);
+
+        for (const auto& edge : edges) {
+            if (earliest[edge.u] + edge.weight > earliest[edge.v]) {
+                earliest[edge.v] = earliest[edge.u] + edge.weight;
+            }
+        }
+
+        cout << "\n--- AOE Network: Earliest Time ---" << endl;
+        for (int i = 0; i < n; i++) {
+            cout << "事件 " << i << " 的最早發生時間: " << earliest[i] << endl;
+        }
+    }
+};
+
+int main() {
+    AOVNetwork aov(4);
+    aov.AddEdge(0, 1);
+    aov.AddEdge(0, 2);
+    aov.AddEdge(1, 3);
+    aov.AddEdge(2, 3);
+    aov.TopologicalSort();
+
+
+    AOENetwork aoe(4);
+    aoe.AddEdge(0, 1, 5);
+    aoe.AddEdge(0, 2, 3);
+    aoe.AddEdge(1, 3, 4);
+    aoe.AddEdge(2, 3, 6);
+    aoe.CalculateEarliestTime();
+
+    return 0;
+}
+```
 ## 效能分析
 (V) = 頂點數、(E) = 邊數
 ### 時間複雜度
@@ -411,7 +537,8 @@ int main() {
 |Prim|O(E log V)|
 |Kruskal|O(E log E)|
 |Dijkstra|O((V+E) log V)|
-
+|AOV Topological Sort| O(V+E) |
+|AOE (ve only) | O(E)|
 ### 空間複雜度
 | 名稱                 | 空間複雜度                  |
 |-----------------------|-----------------------------|
@@ -422,6 +549,8 @@ int main() {
 |Prim|O(V+E) (pq 最差 O(E))|
 |Kruskal|O(V+E)|
 |Dijkstra|O(V+E)|
+|AOV Topological Sort| O(V+E) |
+|AOE (ve only) | O(V+E) |
 
 ## 測試與驗證
 ### 無權重無向圖（LinkedGraph）
@@ -526,17 +655,72 @@ Shortest distance from 0 to 1 is: 10
 Shortest distance from 0 to 2 is: 6
 Shortest distance from 0 to 3 is: 5
 ```
-### 結論
-本次作業完成了圖（Graph）ADT 的設計與實作，並採用Adjacency List作為主要資料結構。成功實現了對無權重圖的深度優先搜尋（DFS）、廣度優先搜尋（BFS）以及連通元件（Connected Components）的判定。同時，也完成了三種針對加權無向圖的演算法，包括 Prim 和 Kruskal 的最小生成樹（MST），以及 Dijkstra 的單源最短路徑演算法。  
+---
 
-從測試結果中可以驗證：DFS 和 BFS 能夠正確遍歷所有可到達節點，連通元件功能也能準確分組。此外，使用 Prim 和 Kruskal 計算出的最小生成樹總成本一致，Dijkstra 亦能輸出起始節點到其他頂點的最短路徑距離。程式具備基本的可擴充性，可作為更多圖演算法的基礎框架。
+### AOV 網路（Topological Sort）
+建立 4 個活動（0~3），相依關係：
+0→1, 0→2, 1→3, 2→3
+
+測試項目：
+1. TopologicalSort()
+
+#### 預期輸出
+拓撲序不唯一，但需滿足 0 在 1、2 前，且 1、2 在 3 前，例如：
+```
+Order: 0 1 2 3
+(或 0 2 1 3)
+```
+
+#### 實際輸出
+```
+--- AOV Network Topological Sort ---
+執行順序：0 1 2 3
+```
+
+---
+
+### AOE 網路（事件最早時間 ve）
+建立 4 個事件（0~3），活動與工期如下：
+0→1(5), 0→2(3), 1→3(4), 2→3(6)
+
+測試項目：
+1. CalculateEarliestTime()（輸出各事件 ve；最早完工時間可由 max(ve) 判定）
+#### 預期結果
+```
+-ve[0]=0, ve[1]=5, ve[2]=3, ve[3]=9  
+```
+#### 實際輸出
+```
+--- AOE Network: Earliest Time ---
+事件 0 的最早發生時間: 0
+事件 1 的最早發生時間: 5
+事件 2 的最早發生時間: 3
+事件 3 的最早發生時間: 9
+```
+
+---
+
+### 測試輸出
+```
+--- AOV Network Topological Sort ---
+執行順序：0 1 2 3
+
+--- AOE Network: Earliest Time ---
+事件 0 的最早發生時間: 0
+事件 1 的最早發生時間: 5
+事件 2 的最早發生時間: 3
+事件 3 的最早發生時間: 9
+```
+### 結論
+本次作業完成了圖（Graph）ADT 的設計與實作，並採用 Adjacency List 作為主要資料結構。成功實現無權重無向圖的深度優先搜尋（DFS）、廣度優先搜尋（BFS）與連通元件（Connected Components）判定；並在加權無向圖中完成 Prim、Kruskal 的最小生成樹（MST）以及 Dijkstra 的單源最短路徑演算法。此外，也實作 AOV 與 AOE 網路：AOV 透過拓撲排序輸出合法執行順序並能偵測迴圈；AOE 則示範計算事件最早時間（ve）並得到專案最早完工時間。
+
+從測試結果可驗證：DFS/BFS 能正確遍歷可到達節點、連通元件可正確分組；Prim 與 Kruskal 計算出的 MST 總成本一致可互相驗證；Dijkstra 輸出的最短距離符合預期；AOV 能輸出符合相依關係的拓撲序列；AOE 能得到正確的 ve 與最早完工時間。整體程式具備基本可擴充性，可作為後續加入更多圖論與網路分析演算法的基礎框架。
 
 ---
 
 ## 申論及開發報告
 
-這次作業採用 adjacency list 的資料結構，兼顧稀疏圖的空間效率與走訪效能；無權重圖部分以 Graph ADT 規範基本操作並完成 DFS、BFS 與連通元件。加權圖部分則以 WeightedGraph 儲存（鄰點、權重），並實作 Prim、Kruskal 的最小生成樹以及 Dijkstra 的單源最短路徑。透過 Prim 與 Kruskal 得到相同的 MST 總成本作為交叉驗證，可確認整體結果具一致性；Dijkstra 的最短距離也符合預期。未來若要提升完整度，可將加權圖的介面也納入更一致的 ADT 設計，並加入最短路徑回溯。
-
+這次作業採用 adjacency list 的資料結構，兼顧稀疏圖的空間效率與走訪效能；無權重圖部分以 Graph ADT 規範基本操作並完成 DFS、BFS 與連通元件。加權圖部分則以 WeightedGraph 儲存（鄰點、權重），並實作 Prim、Kruskal 的最小生成樹以及 Dijkstra 的單源最短路徑。透過 Prim 與 Kruskal 得到相同的 MST 總成本作為交叉驗證，可確認整體結果具一致性；Dijkstra 的最短距離也符合預期。此外也補充 AOV/AOE 網路：AOV 以拓撲排序輸出合法執行順序；AOE 計算 ve 並判定最早完工時間，作為排程分析基礎。
 ---
 ### 優缺點
 #### 優點
