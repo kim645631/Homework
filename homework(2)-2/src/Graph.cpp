@@ -26,64 +26,64 @@ public:
 };
 class DFSGraph : public Graph {
 protected:
-    bool* visited;
+    bool* vis;
 
 public:
-    DFSGraph(int vertices = 0) : Graph(vertices), visited(nullptr) {}
+    DFSGraph(int vertices = 0) : Graph(vertices), vis(nullptr) {}
     virtual ~DFSGraph() {}
 
     virtual void DFS() {
         if (n <= 0) return;
-        visited = new bool[n];
-        std::fill(visited, visited + n, false);
+        vis = new bool[n];
+        std::fill(vis, vis + n, false);
 
         cout << "DFS traversal starting from 0: ";
         DFS(0);
         cout << endl;
 
-        delete[] visited;
-        visited = nullptr;
+        delete[] vis;
+        vis = nullptr;
     }
 
     virtual void DFS(const int v) {
         if (v < 0 || v >= n) return;
-        visited[v] = true;
+        vis[v] = true;
         cout << v << " ";
     }
 };
 class LinkedGraph : public DFSGraph {
 private:
-    vector<vector<int>> adjList;
+    vector<vector<int>> List;
 
 public:
     using DFSGraph::DFS;
 
     LinkedGraph(int vertices) : DFSGraph(vertices) {
-        adjList.resize(vertices);
+        List.resize(vertices);
     }
 
     int Degree(int u) const override {
-        return u < n ? static_cast<int>(adjList[u].size()) : 0;
+        return u < n ? static_cast<int>(List[u].size()) : 0;
     }
 
     bool ExistsEdge(int u, int v) const override {
         if (u >= n || v >= n) return false;
-        for (int w : adjList[u]) {
+        for (int w : List[u]) {
             if (w == v) return true;
         }
         return false;
     }
 
     void InsertVertex(int v) override {
-        adjList.push_back(vector<int>());
+        List.push_back(vector<int>());
         n++;
     }
 
     void InsertEdge(int u, int v) override {
         if (u < 0 || u >= n || v < 0 || v >= n) return;
         if (!ExistsEdge(u, v)) {
-            adjList[u].push_back(v);
-            adjList[v].push_back(u);
+            List[u].push_back(v);
+            List[v].push_back(u);
             e++;
         }
     }
@@ -94,7 +94,7 @@ public:
         for (int i = 0; i < n; i++) {
             if (i == v) continue;
 
-            auto& list = adjList[i];
+            auto& list = List[i];
             auto it = remove(list.begin(), list.end(), v);
             if (it != list.end()) {
                 list.erase(it, list.end());
@@ -102,10 +102,10 @@ public:
             }
         }
 
-        adjList.erase(adjList.begin() + v);
+        List.erase(List.begin() + v);
 
-        for (int i = 0; i < adjList.size(); i++) {
-            for (int& x : adjList[i]) {
+        for (int i = 0; i < List.size(); i++) {
+            for (int& x : List[i]) {
                 if (x > v) x--;
             }
         }
@@ -114,17 +114,17 @@ public:
     }
     void DeleteEdge(int u, int v) override {
         if (!ExistsEdge(u, v)) return;
-        adjList[u].erase(remove(adjList[u].begin(), adjList[u].end(), v), adjList[u].end());
-        adjList[v].erase(remove(adjList[v].begin(), adjList[v].end(), u), adjList[v].end());
+        List[u].erase(remove(List[u].begin(), List[u].end(), v), List[u].end());
+        List[v].erase(remove(List[v].begin(), List[v].end(), u), List[v].end());
         e--;
     }
 
     void DFS(const int v) override {
         if (v < 0 || v >= n) return;
-        visited[v] = true;
+        vis[v] = true;
         cout << v << " ";
-        for (int w : adjList[v]) {
-            if (!visited[w]) {
+        for (int w : List[v]) {
+            if (!vis[w]) {
                 DFS(w);
             }
         }
@@ -132,11 +132,11 @@ public:
 
     void BFS(int v) {
         if (n <= 0) return;
-        visited = new bool[n];
-        std::fill(visited, visited + n, false);
+        vis = new bool[n];
+        std::fill(vis, vis + n, false);
 
         cout << "BFS traversal starting from " << v << ": ";
-        visited[v] = true;
+        vis[v] = true;
         cout << v << " ";
 
         queue<int> q;
@@ -146,43 +146,43 @@ public:
             int current = q.front();
             q.pop();
 
-            for (int w : adjList[current]) {
-                if (!visited[w]) {
+            for (int w : List[current]) {
+                if (!vis[w]) {
                     q.push(w);
-                    visited[w] = true;
+                    vis[w] = true;
                     cout << w << " ";
                 }
             }
         }
         cout << endl;
-        delete[] visited;
-        visited = nullptr;
+        delete[] vis;
+        vis = nullptr;
     }
 
     void Components() {
         if (n <= 0) return;
-        visited = new bool[n];
-        std::fill(visited, visited + n, false);
+        vis = new bool[n];
+        std::fill(vis, vis + n, false);
 
         cout << "--- Connected Components ---" << endl;
         for (int i = 0; i < n; i++) {
-            if (!visited[i]) {
+            if (!vis[i]) {
                 cout << "Component found: ";
                 DFS_Component(i);
                 cout << endl;
             }
         }
-        delete[] visited;
-        visited = nullptr;
+        delete[] vis;
+        vis = nullptr;
     }
 
 private:
     void DFS_Component(int v) {
         if (v < 0 || v >= n) return;
-        visited[v] = true;
+        vis[v] = true;
         cout << v << " ";
-        for (int w : adjList[v]) {
-            if (!visited[w]) {
+        for (int w : List[v]) {
+            if (!vis[w]) {
                 DFS_Component(w);
             }
         }
@@ -199,24 +199,24 @@ struct Edge {
 class WeightedGraph {
 private:
     int n;
-    vector<vector<pair<int, int>>> adjList;
+    vector<vector<pair<int, int>>> List;
 
 public:
     WeightedGraph(int vertices) : n(vertices) {
-        adjList.resize(vertices);
+        List.resize(vertices);
     }
 
     void InsertEdge(int u, int v, int weight) {
         if (u < n && v < n) {
-            adjList[u].push_back({ v, weight });
-            adjList[v].push_back({ u, weight });
+            List[u].push_back({ v, weight });
+            List[v].push_back({ u, weight });
         }
     }
 
     void Kruskal() {
         vector<Edge> edges;
         for (int u = 0; u < n; u++) {
-            for (auto& neighbor : adjList[u]) {
+            for (auto& neighbor : List[u]) {
                 int v = neighbor.first;
                 int weight = neighbor.second;
                 if (u < v) {
@@ -236,8 +236,8 @@ public:
         };
 
         cout << "\n--- Kruskal's Algorithm ---" << endl;
-        int minCost = 0;
-        int edgeCount = 0;
+        int min = 0;
+        int edgeC = 0;
 
         for (const auto& edge : edges) {
             int root_u = find(find, edge.u);
@@ -245,13 +245,13 @@ public:
 
             if (root_u != root_v) {
                 cout << "Include edge (" << edge.u << " - " << edge.v << ") with weight " << edge.weight << endl;
-                minCost += edge.weight;
+                min += edge.weight;
                 parent[root_u] = root_v;
-                edgeCount++;
-                if (edgeCount == n - 1) break;
+                edgeC++;
+                if (edgeC == n - 1) break;
             }
         }
-        cout << "Total Minimum Cost (Kruskal): " << minCost << endl;
+        cout << "Total Minimum Cost (Kruskal): " << min << endl;
     }
     void Prim() {
         vector<bool> inMST(n, false);
@@ -275,7 +275,7 @@ public:
             minCost += weight;
             cout << "Added vertex " << u << " with edge weight " << weight << endl;
 
-            for (auto& neighbor : adjList[u]) {
+            for (auto& neighbor : List[u]) {
                 int v = neighbor.first;
                 int cost = neighbor.second;
                 if (!inMST[v]) {
@@ -303,7 +303,7 @@ public:
 
             if (d > dist[u]) continue;
 
-            for (auto& neighbor : adjList[u]) {
+            for (auto& neighbor : List[u]) {
                 int v = neighbor.first;
                 int weight = neighbor.second;
 
