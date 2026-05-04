@@ -18,7 +18,6 @@
 2. **加權無向圖（WeightedGraph）**  
    以 adjacency list 儲存（包括鄰點和權重），並實作 Prim 與 Kruskal 求最小生成樹，以及 Dijkstra 求單源最短路徑。
 
----
 
 ### 解題策略
 1. **設計 Graph ADT，統一操作介面**
@@ -532,7 +531,6 @@ Shortest distance from 0 to 3 is: 5
 從測試結果中可以驗證：DFS 和 BFS 能夠正確遍歷所有可到達節點，連通元件功能也能準確分組。此外，使用 Prim 和 Kruskal 計算出的最小生成樹總成本一致，Dijkstra 亦能輸出起始節點到其他頂點的最短路徑距離。程式具備基本的可擴充性，可作為更多圖演算法的基礎框架。
 
 
----
 
 ## 申論及開發報告
 
@@ -541,7 +539,6 @@ Shortest distance from 0 to 3 is: 5
 
 此外，adjacency list 在列舉鄰接節點時效率較高，特別適合 **DFS** 與 **BFS** 等走訪演算法。因此，選擇 adjacency list 作為主要資料結構，以兼顧效率與空間使用。
 
----
 
 ### 為何同時實作 Prim 與 Kruskal？
 Prim 與 Kruskal 皆為求解 **最小生成樹（MST）** 的演算法，但其策略不同：
@@ -556,6 +553,5 @@ Prim 與 Kruskal 皆為求解 **最小生成樹（MST）** 的演算法，但其
 
 同時實作兩者，並透過比較其結果（**MST 總權重一致**）來驗證演算法的正確性。
 
----
 
 
