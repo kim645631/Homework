@@ -21,6 +21,9 @@
 - Correctness Test
 - 計時系統
 - 結果輸出
+
+---
+
 ### 解題策略
 #### 1. Insertion Sort
 
@@ -88,6 +91,8 @@ Composite Sort 會根據資料量自動選擇排序方法：
 - 如果資料量大於 32，就用 Merge Sort
 
 這樣可以針對不同規模自動選擇最有效率的排序方式，提高整體效能。
+
+---
 ## 程式實作
 
 ### IDE:
@@ -436,117 +441,45 @@ int main() {
 ```
 ## 效能分析
 
+### 時間複雜度比較
 
-### 時間複雜度
-| 排序法 | Best Case | Average Case | Worst Case |
-|---|---|---|---|
-| Insertion Sort | O(n) | O(n²) | O(n²) |
-| Quick Sort | O(n log n) | O(n log n) | O(n²) |
-| Merge Sort | O(n log n) | O(n log n) | O(n log n) |
-| Heap Sort | O(n log n) | O(n log n) | O(n log n) |
+| 排序法         | 最佳 | 平均     | 最壞     |
+|----------------|------|----------|----------|
+| Insertion Sort | O(n) | O(n²)    | O(n²)    |
+| Quick Sort     | O(n log n) | O(n log n) | O(n²)    |
+| Merge Sort     | O(n log n) | O(n log n) | O(n log n) |
+| Heap Sort      | O(n log n) | O(n log n) | O(n log n) |
 | Composite Sort | O(n) / O(n log n) | O(n log n) | O(n log n) |
-### Insertion Sort
 
-Worst-case 發生於反向排列：
+- **Insertion Sort**：當資料是反向時，時間複雜度最差是 O(n²)。
+- **Quick Sort**：正常是 O(n log n)，如果選 pivot 不佳，最壞情況會退化成 O(n²)；因此本程式使用三數取中減少這種狀況。
+- **Merge Sort**：無論資料如何，時間複雜度都是 O(n log n)。
+- **Heap Sort**：時間複雜度一直是 O(n log n)，不太受資料排列影響。
+- **Composite Sort**：根據資料量自動選擇排序法，平均能有 O(n log n) 表現。
 
-```text
-n, n-1, ..., 1
-```
+### 空間複雜度比較
 
-其時間複雜度為：
+| 排序法         | 空間複雜度 |
+|----------------|------------|
+| Insertion Sort | O(1)       |
+| Quick Sort     | O(log n)   |
+| Merge Sort     | O(n)       |
+| Heap Sort      | O(1)       |
+| Composite Sort | O(n)       |
 
-```text
-O(n²)
-```
+- **Merge Sort**：需要額外 O(n) 空間來合併（臨時陣列）。
+- **Heap Sort**、**Insertion Sort**：屬於 in-place 排序，額外需求空間極少。
 
----
+### 正確性測試內容
 
-### Quick Sort
-
-平均情況下：
-
-```text
-O(n log n)
-```
-
-但若 pivot 選擇不佳，可能退化為：
-
-```text
-O(n²)
-```
-
-因此本程式使用 Median-of-Three 改善效能。
-
----
-
-### Merge Sort
-
-Merge Sort 不受資料排列影響，其時間複雜度固定為：
-
-```text
-O(n log n)
-```
-
----
-
-### Heap Sort
-
-Heap Sort 同樣維持：
-
-```text
-O(n log n)
-```
-
-且對資料排列較不敏感。
-
----
-
-### 空間複雜度
-
-| 排序法 | 空間複雜度 |
-|---|---|
-| Insertion Sort | O(1) |
-| Quick Sort | O(log n) |
-| Merge Sort | O(n) |
-| Heap Sort | O(1) |
-| Composite Sort | O(n) |
-
----
-
-### Merge Sort
-
-需額外使用：
-
-```cpp
-vector<int> tmp
-```
-
-作為合併暫存空間，因此需要 O(n) 額外記憶體。
-
----
-
-### Heap Sort
-
-Heap Sort 為 In-place Sort，因此額外空間需求較低。
-
-
-本程式首先進行 Correctness Test，測試內容包含：
-
+本程式會先檢查排序結果是否正確，測試資料包括：
 - 空陣列
 - 單一元素
 - 反向排列
 - 重複元素
 - 隨機排列
-
-並使用：
-
-```cpp
-sort(ans.begin(), ans.end());
-```
-
-作為標準答案比較。
-
-若排序結果與標準答案不同，則視為排序失敗。
+ 
+若排序結果與 C++ 標準 sort 函式結果一致，判斷為正確。
 
 ---
 ## 測試與驗證
