@@ -22,7 +22,7 @@
 - 計時系統
 - 結果輸出
 ### 解題策略
-### 1. Insertion Sort
+#### 1. Insertion Sort
 
 Insertion Sort 採用逐步插入方式進行排序。
 
@@ -36,103 +36,58 @@ Insertion Sort 採用逐步插入方式進行排序。
 
 ---
 
-### 2. Quick Sort
+#### 2. Quick Sort
 
-Quick Sort 採用 Divide and Conquer（分治法）概念：
+Quick Sort 是一種分治法的排序演算法，流程如下：
 
-1. 選擇 pivot
-2. 進行 partition
-3. 遞迴排序左右子區間
+1. 選擇基準值（pivot）
+2. 將資料分成比 pivot 小和大的兩部分（partition）
+3. 對左右兩邊遞迴排序
 
-本程式使用：
+本程式採用「三數取中」（Median-of-Three）法選 pivot：  
+- 從左邊、中間、右邊三個數字中取中位數作為 pivot  
+- 這樣可以減少遇到已排序或反向資料時發生最壞狀況 (O(n²)) 的機率
 
-```cpp
-median-of-three
-```
-
-作為 pivot 選擇方式。
-
-選擇：
-
-- left
-- middle
-- right
-
-三者中的中位數，可降低：
-
-- 已排序資料
-- 反向資料
-
-造成 Worst-case 的機率。
-
-此外，當子區間長度小於 16 時：
-
-```cpp
-cut = 16
-```
-
-改用 Insertion Sort 提升效率。
+此外，當子區間長度小於 16 時，會自動改用 Insertion Sort，提升小陣列排序效率。
 
 ---
 
-### 3. Iterative Merge Sort
+#### 3. Iterative Merge Sort
 
-本專題使用 Iterative Merge Sort，而非 Recursive Merge Sort。
+本程式採用「迭代式」Merge Sort（非遞迴寫法）。
 
-其策略為：
+做法如下：
+- 一開始將每個長度為 1 的區塊合併
+- 接著依序合併長度為 2、4、8、16 的區塊
+- 重複步驟直到整個陣列排序完成
 
-- 先合併長度為 1 的區塊
-- 再依序合併：
-  - 2
-  - 4
-  - 8
-  - 16
-
-直到整個陣列完成排序。
-
-此方法可避免遞迴造成的額外函式呼叫成本。
+這種方式可以避免遞迴所產生的額外函式呼叫成本，更有效率地進行排序。
 
 ---
 
-### 4. Heap Sort
+#### 4. Heap Sort
 
-Heap Sort 使用：
+Heap Sort 先將資料整理成 Max Heap（最大堆），再進行排序。
 
-- Max Heap
+基本流程：
 
-進行排序。
+1. 把所有元素建成一個最大堆
+2. 取出堆頂（最大值）放到陣列最後
+3. 將堆的大小減 1，並重新整理堆（維持最大堆性質）
+4. 重複步驟 2-3，直到排序完成
 
-流程如下：
-
-1. 建立 Max Heap
-2. 將最大值移至尾端
-3. 縮小 Heap 範圍
-4. 重新下沉調整
-
-重複直到排序完成。
+這樣可以把最大值一個一個移到陣列尾端，完成排序。
 
 ---
 
-### 5. Composite Sort
+#### 5. Composite Sort
 
-Composite Sort 根據資料量大小選擇排序方式：
+Composite Sort 會根據資料量自動選擇排序方法：
 
-```cpp
-if (n <= 32)
-    ins(a);
-else
-    mrg(a);
-```
+- 如果資料量小於等於 32，就用 Insertion Sort
+- 如果資料量大於 32，就用 Merge Sort
 
-小型資料使用：
-
-- Insertion Sort
-
-大型資料使用：
-
-- Merge Sort
-
-藉此提升整體排序效率。
+這樣可以針對不同規模自動選擇最有效率的排序方式，提高整體效能。
 ## 程式實作
 
 ### IDE:
