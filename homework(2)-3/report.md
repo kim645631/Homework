@@ -103,14 +103,15 @@ Microsoft Visual Studio Code C/C++
 #include <chrono>     
 #include <iomanip>    
 #include <iostream>   
-#include <numeric>   
+#include <numeric>    
 #include <random>     
 #include <string>     
-#include <vector>    
-using namespace std; 
+#include <vector>     
+
+using namespace std;  
 
 using Clk = chrono::high_resolution_clock;   
-using Us = chrono::duration<double, micro>; 
+using Us = chrono::duration<double, micro>;  
 
 enum ST { INS, QCK, MRG, HEP, CMP };  
 
@@ -161,7 +162,7 @@ void ins(vector<int>& a) {
             a[j + 1] = a[j];                  
             j--;                             
         }
-        a[j + 1] = key;                       
+        a[j + 1] = key;                      
     }
 }
 
@@ -178,7 +179,7 @@ void qrec(vector<int>& a, int l, int r) {
     int cut = 16;                         
     if (l + cut <= r) {                   
         int p = med3(a, l, r);            
-        int i = l;                        
+        int i = l;                       
         int j = r - 1;                    
         while (true) {                    
             while (a[++i] < p) {          
@@ -194,7 +195,7 @@ void qrec(vector<int>& a, int l, int r) {
         }
         swap(a[i], a[r - 1]);             
         qrec(a, l, i - 1);                
-        qrec(a, i + 1, r);                
+        qrec(a, i + 1, r);               
     }
     else {                              
         for (int x = l + 1; x <= r; x++) {
@@ -204,7 +205,7 @@ void qrec(vector<int>& a, int l, int r) {
                 a[y + 1] = a[y];          
                 y--;                      
             }
-            a[y + 1] = key;               
+            a[y + 1] = key;              
         }
     }
 }
@@ -217,30 +218,30 @@ void qck(vector<int>& a) {
 
 void mrg(vector<int>& a) {                 
     int n = (int)a.size();                 
-    vector<int> tmp(n);                    
-    for (int w = 1; w < n; w *= 2) {      
+    vector<int> tmp(n);                   
+    for (int w = 1; w < n; w *= 2) {       
         for (int l = 0; l < n; l += 2 * w) {
             int m = min(l + w, n);         
             int r = min(l + 2 * w, n);     
             int i = l;                     
-            int j = m;                     
-            int k = l;                     
-            while (i < m && j < r) {       
-                if (a[i] <= a[j]) {        
-                    tmp[k] = a[i];         
-                    i++;                   
+            int j = m;                    
+            int k = l;                    
+            while (i < m && j < r) {     
+                if (a[i] <= a[j]) {      
+                    tmp[k] = a[i];        
+                    i++;                  
                 }
-                else {                   
-                    tmp[k] = a[j];         
-                    j++;                   
+                else {                  
+                    tmp[k] = a[j];       
+                    j++;                 
                 }
-                k++;                       
+                k++;                      
             }
-            while (i < m) {                
-                tmp[k++] = a[i++];         
+            while (i < m) {               
+                tmp[k++] = a[i++];       
             }
-            while (j < r) {                
-                tmp[k++] = a[j++];         
+            while (j < r) {               
+                tmp[k++] = a[j++];        
             }
             for (int x = l; x < r; x++) {  
                 a[x] = tmp[x];             
@@ -251,30 +252,30 @@ void mrg(vector<int>& a) {
 
 void down(vector<int>& a, int s, int e) { 
     int root = s;                         
-    while (root * 2 + 1 <= e) {           
+    while (root * 2 + 1 <= e) {          
         int lc = root * 2 + 1;            
         int rc = lc + 1;                  
-        int big = root;                   
-        if (a[big] < a[lc]) {             
+        int big = root;                  
+        if (a[big] < a[lc]) {            
             big = lc;                    
         }
-        if (rc <= e && a[big] < a[rc]) {  
+        if (rc <= e && a[big] < a[rc]) { 
             big = rc;                     
         }
-        if (big == root) {                
-            return;                       
+        if (big == root) {               
+            return;                      
         }
         swap(a[root], a[big]);            
-        root = big;                       
+        root = big;                      
     }
 }
 
-void heap(vector<int>& a) {                    
+void heap(vector<int>& a) {                   
     int n = (int)a.size();                     
     for (int s = n / 2 - 1; s >= 0; s--) {     
         down(a, s, n - 1);                     
     }
-    for (int e = n - 1; e > 0; e--) {          
+    for (int e = n - 1; e > 0; e--) {         
         swap(a[0], a[e]);                      
         down(a, 0, e - 1);                     
     }
@@ -294,13 +295,13 @@ void run(ST t, vector<int>& a) {
     if (t == INS) ins(a);         
     else if (t == QCK) qck(a);    
     else if (t == MRG) mrg(a);    
-    else if (t == HEP) heap(a);   
-    else if (t == CMP) cmp(a);    
+    else if (t == HEP) heap(a);  
+    else if (t == CMP) cmp(a);   
 }
 
 bool ok(ST t) {                         
     vector<vector<int>> tests = {       
-        {},                             
+        {},                            
         {1},                            
         {2, 1},                         
         {5, 1, 3, 3, 2, 9, 0},          
@@ -308,28 +309,28 @@ bool ok(ST t) {
         rnd(257)                        
     };
     for (vector<int> a : tests) {       
-        vector<int> ans = a;            
+        vector<int> ans = a;           
         sort(ans.begin(), ans.end());   
         run(t, a);                      
         if (a != ans) {                 
             return false;               
         }
     }
-    return true;                       
+    return true;                        
 }
 
 double rpt(ST t, const vector<int>& src, int& times) { 
-    times = 1;                                        
-    double total = 0.0;                                
+    times = 1;                                         
+    double total = 0.0;                               
     while (times <= 1048576) {                         
-        auto st = Clk::now();                         
+        auto st = Clk::now();                          
         for (int i = 0; i < times; i++) {             
-            vector<int> a = src;                      
+            vector<int> a = src;                       
             run(t, a);                                 
         }
         auto ed = Clk::now();                          
         total = Us(ed - st).count();                   
-        if (total >= 100000.0) {                       
+        if (total >= 100000.0) {                      
             break;                                     
         }
         times *= 2;                                   
@@ -340,27 +341,27 @@ double rpt(ST t, const vector<int>& src, int& times) {
 vector<int> mwRec(const vector<int>& s) {      
     int n = (int)s.size();                     
     if (n <= 1) {                              
-        return s;                             
+        return s;                              
     }
-    vector<int> l;                            
+    vector<int> l;                             
     vector<int> r;                             
-    for (int i = 0; i < n; i++) {             
-        if (i % 2 == 0) {                    
-            l.push_back(s[i]);                
+    for (int i = 0; i < n; i++) {              
+        if (i % 2 == 0) {                      
+            l.push_back(s[i]);                 
         }
-        else {                               
+        else {                              
             r.push_back(s[i]);                 
         }
     }
     l = mwRec(l);                              
-    r = mwRec(r);                             
+    r = mwRec(r);                              
     l.insert(l.end(), r.begin(), r.end());     
     return l;                                
 }
 
 vector<int> wdata(ST t, int n) { 
     if (t == INS) {              
-        return rev(n);           
+        return rev(n);          
     }
     if (t == MRG) {              
         return mwRec(seq(n));    
@@ -368,76 +369,75 @@ vector<int> wdata(ST t, int n) {
     return rnd(n);               
 }
 
-R worst(ST t, int n, int rt) {              
-    if (t == QCK || t == HEP || t == CMP) { 
-        double mx = 0.0;                    
-        for (int i = 0; i < rt; i++) {      
-            int times = 1;                  
-            vector<int> a = rnd(n);         
-            double now = rpt(t, a, times);  
-            mx = max(mx, now);              
-        }
-        return { n, nm(t), "worst", mx, rt }; 
+vector<R> testCase(ST t, int n, int rt) {       
+    vector<vector<int>> samples;                
+
+    samples.push_back(wdata(t, n));             
+
+    for (int i = 0; i < rt; i++) {              
+        samples.push_back(rnd(n));             
     }
-    int times = 1;                          
-    vector<int> a = wdata(t, n);           
-    double now = rpt(t, a, times);         
-    return { n, nm(t), "worst", now, times }; 
+
+    double total = 0.0;                        
+    double mx = 0.0;                            
+    int usedTimes = 0;                         
+
+    for (vector<int> a : samples) {             
+        int times = 1;                          
+        double now = rpt(t, a, times);          
+        total += now;                           
+        mx = max(mx, now);                     
+        usedTimes = max(usedTimes, times);      
+    }
+
+    double mean = total / samples.size();     
+    vector<R> ans;                              
+    ans.push_back({ n, nm(t), "worst", mx, usedTimes });      
+    ans.push_back({ n, nm(t), "average", mean, (int)samples.size() }); 
+    return ans;                                 
 }
 
-R avg(ST t, int n, int rt) {                  
-    vector<vector<int>> samples;              
-    for (int i = 0; i < rt; i++) {           
-        samples.push_back(rnd(n));            
-    }
-    auto st = Clk::now();                     
-    for (vector<int> a : samples) {          
-        run(t, a);                            
-    }
-    auto ed = Clk::now();                    
-    double mean = Us(ed - st).count() / rt;  
-    return { n, nm(t), "average", mean, rt };   
-}
-
-void show(const vector<R>& rs) {                   
+void show(const vector<R>& rs) {                    
     cout << fixed << setprecision(3);              
-    cout << "\nTiming summary, microseconds per sort\n"; 
+    cout << "\nTiming summary, microseconds per sort\n";
     cout << "n,algorithm,data_kind,microseconds,trials\n"; 
-    for (R x : rs) {                               
+    for (R x : rs) {                                
         cout << x.n << ","                         
             << x.alg << ","                       
             << x.kind << ","                      
             << x.us << ","                       
-            << x.times << "\n";                  
+            << x.times << "\n";                   
     }
 }
 
 int main() {                                                   
-    vector<ST> algs = { INS, QCK, MRG, HEP, CMP };              
-    vector<int> ns = { 500, 1000, 2000, 3000, 4000, 5000 };      
+    vector<ST> algs = { INS, QCK, MRG, HEP, CMP };               
+    vector<int> ns = { 500, 1000, 2000, 3000, 4000, 5000 };     
     vector<R> rs;                                              
     cout << "Timer: chrono::high_resolution_clock\n";          
     cout << "Clock accuracy estimate: "                       
         << (double)Clk::period::num / Clk::period::den * 1000000.0 
         << " microseconds per tick\n";                        
-    for (ST t : algs) {                                        
+    for (ST t : algs) {                                       
         if (!ok(t)) {                                          
             cout << nm(t) << " failed correctness test.\n";    
-            return 1;                                          
+            return 1;                                         
         }
     }
-    cout << "Correctness tests passed.\n";                    
-    for (int n : ns) {                                       
+    cout << "Correctness tests passed.\n";                     
+    for (int n : ns) {                                         
         int rt = max(10, 10000 / n);                           
         for (ST t : algs) {                                    
-            rs.push_back(worst(t, n, rt));                     
-            rs.push_back(avg(t, n, rt));                       
+            vector<R> tmp = testCase(t, n, rt);                
+            rs.push_back(tmp[0]);                              
+            rs.push_back(tmp[1]);                              
         }
     }
     show(rs);                                                  
     cout << "\nFinished. Copy these results into Excel or your report if needed.\n"; 
     return 0;                                                  
 }
+
 ```
 ## 效能分析
 
@@ -470,100 +470,45 @@ int main() {
 - **Merge Sort**：需要額外 O(n) 空間來合併（臨時陣列）。
 - **Heap Sort**、**Insertion Sort**：屬於 in-place 排序，額外需求空間極少。
 
-### 正確性測試內容
-
-本程式會先檢查排序結果是否正確，測試資料包括：
-- 空陣列
-- 單一元素
-- 反向排列
-- 重複元素
-- 隨機排列
- 
-若排序結果與 C++ 標準 sort 函式結果一致，判斷為正確。
-
 ---
 ## 測試與驗證
+
+### 正確性驗證
+
+- 執行排序前，先測試以下情境：
+  - 空陣列
+  - 單一元素
+  - 逆序
+  - 重複元素
+  - 隨機排列
+- 排序結果會與 C++ 標準 sort 函式結果比對，完全一致才算正確。
+
+---
+
 ### Worst-case 測試
 
-#### Insertion Sort
-
-使用：
-
-```text
-n, n-1, ..., 1
-```
-
-作為 Worst-case。
-
----
-
-#### Merge Sort
-
-使用：
-
-```cpp
-mwRec()
-```
-
-遞迴產生 Merge Sort Worst-case 資料。
-
-此方法會使 merge 過程中比較次數增加。
-
----
-
-#### Quick Sort 與 Heap Sort
-
-由於難以直接構造真正 Worst-case，因此程式使用：
-
-```cpp
-random permutation
-```
-
-並測試多組資料：
-
-```cpp
-rt = max(10, 10000 / n)
-```
-
-取其中耗時最大者作為近似 Worst-case。
+- **Insertion Sort**：用反向排列（n, n-1, ..., 1）做最壞情境測試。
+- **Merge Sort**：用特殊函式 `mwRec()` 產生最壞情境，增加合併比較次數。
+- **Quick Sort、Heap Sort**：直接用多組隨機資料，取最大耗時近似最壞情境，重複次數為 `rt = max(10, 10000 / n)`。
 
 ---
 
 ### Average-case 測試
 
-Average-case 使用多組隨機排列進行測試，並計算平均執行時間。
+- 使用多組隨機排列資料，計算平均排序時間。
 
 ---
 
 ### 計時方法
 
-本程式使用：
+- 使用 `chrono::high_resolution_clock` 進行高精度計時（單位：微秒）。
+- 為減少誤差，自動重複排序次數，直到總耗時超過 100,000 微秒。
 
-```cpp
-chrono::high_resolution_clock
-```
+---
 
-進行高精度時間量測。
+### 效能比較
 
-單位為：
-
-```text
-microseconds
-```
-
-為避免量測誤差，程式會自動增加重複執行次數：
-
-```cpp
-times *= 2;
-```
-
-直到總執行時間超過：
-
-```text
-100000 microseconds
-```
-
-以提高量測穩定性。
+- 每種排序法都會根據最壞情境與平均情境結果進行效能比較，找出各自適合的情境。
 
 ---
 
