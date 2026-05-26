@@ -4,7 +4,8 @@
 ## 作業三 Sorting Project
 
 ## 解題說明
-本題目主要目標為實作多種排序演算法，並比較其在不同輸入資料與不同資料量下的執行效能。程式中共實作五種排序方式：
+
+本題目主要目標為實作多種排序演算法，並比較其在不同輸入資料與不同資料量下的執行效能。程式中共實作五種排序演算法：
 
 1. Insertion Sort  
 2. Quick Sort（Median-of-Three）  
@@ -12,20 +13,21 @@
 4. Heap Sort  
 5. Composite Sort  
 
-其中 Composite Sort 會依資料量大小自動選擇適合的排序法，以提升整體效能。
+其中 Composite Sort 會根據資料量選擇不同排序策略，以提升整體排序效能。
 
 程式同時包含：
 
-- Worst-case 測試
-- Average-case 測試
+- Worst-case Test
+- Average-case Test
 - Correctness Test
 - 計時系統
 - 結果輸出
 
 ---
 
-### 解題策略
-#### 1. Insertion Sort
+## 解題策略
+
+### 1. Insertion Sort
 
 Insertion Sort 採用逐步插入方式進行排序。
 
@@ -33,64 +35,66 @@ Insertion Sort 採用逐步插入方式進行排序。
 
 - 從第二個元素開始
 - 將元素插入左側已排序區域
-- 若左側元素較大則向右移動
+- 將大於 key 的元素向右移動
 
-此方法在小型資料下效率良好，因此 Composite Sort 中也將其用於小資料量排序。
+此方法在小型資料下具有較低的常數成本，因此 Composite Sort 中也將其用於小型資料排序。
 
 ---
 
-#### 2. Quick Sort
+### 2. Quick Sort
 
-Quick Sort 是一種分治法的排序演算法，流程如下：
+Quick Sort 是一種分治法（Divide and Conquer）的排序演算法，流程如下：
 
 1. 選擇基準值（pivot）
-2. 將資料分成比 pivot 小和大的兩部分（partition）
-3. 對左右兩邊遞迴排序
+2. 將資料依 pivot 分割為左右兩部分
+3. 對左右子區間遞迴排序
 
-本程式採用「三數取中」（Median-of-Three）法選 pivot：  
-- 從左邊、中間、右邊三個數字中取中位數作為 pivot  
-- 這樣可以減少遇到已排序或反向資料時發生最壞狀況 (O(n²)) 的機率
+本程式採用「Median-of-Three」方式選擇 pivot：
 
-此外，當子區間長度小於 16 時，會自動改用 Insertion Sort，提升小陣列排序效率。
+- 從左側、中間與右側三個元素中取中位數作為 pivot
+- 可降低因輸入資料接近排序完成而導致效能退化為 O(n²) 的機率
+
+此外，當子區間長度小於 16 時，會改用 Insertion Sort，以降低遞迴與分割（partition）的額外成本。這是一種常見的 Hybrid Optimization 技術。
 
 ---
 
-#### 3. Iterative Merge Sort
+### 3. Iterative Merge Sort
 
-本程式採用「迭代式」Merge Sort（非遞迴寫法）。
+本程式採用迭代式（Iterative）Merge Sort，而非遞迴實作方式。
 
-做法如下：
-- 一開始將每個長度為 1 的區塊合併
+實作流程如下：
+
+- 初始時將每個元素視為長度為 1 的已排序區塊
 - 接著依序合併長度為 2、4、8、16 的區塊
-- 重複步驟直到整個陣列排序完成
+- 重複執行直到整個陣列完成排序
 
-這種方式可以避免遞迴所產生的額外函式呼叫成本，更有效率地進行排序。
-
----
-
-#### 4. Heap Sort
-
-Heap Sort 先將資料整理成 Max Heap（最大堆），再進行排序。
-
-基本流程：
-
-1. 把所有元素建成一個最大堆
-2. 取出堆頂（最大值）放到陣列最後
-3. 將堆的大小減 1，並重新整理堆（維持最大堆性質）
-4. 重複步驟 2-3，直到排序完成
-
-這樣可以把最大值一個一個移到陣列尾端，完成排序。
+此方法可避免深層遞迴造成的函式呼叫成本。
 
 ---
 
-#### 5. Composite Sort
+### 4. Heap Sort
 
-Composite Sort 會根據資料量自動選擇排序方法：
+Heap Sort 會先將資料整理成 Max Heap，再進行排序。
 
-- 如果資料量小於等於 32，就用 Insertion Sort
-- 如果資料量大於 32，就用 Merge Sort
+基本流程如下：
 
-這樣可以針對不同規模自動選擇最有效率的排序方式，提高整體效能。
+1. 將所有元素建構成 Max Heap
+2. 取出堆頂元素（最大值）並放置至陣列尾端
+3. 將 Heap 大小減 1，並重新調整 Heap 結構（heapify）
+4. 重複步驟 2 至 3，直到排序完成
+
+透過反覆將最大值移至陣列尾端，最終完成排序。
+
+---
+
+### 5. Composite Sort
+
+Composite Sort 採用混合式排序（Hybrid Sort）概念，根據資料量選擇不同排序策略：
+
+- 當資料量小於等於 32 時，使用 Insertion Sort
+- 當資料量大於 32 時，使用 Merge Sort
+
+由於 Insertion Sort 在小型資料下具有較低常數成本，因此能提升整體排序表現。
 
 ---
 ## 程式實作
@@ -443,123 +447,117 @@ int main() {
 
 ### 時間複雜度比較
 
-| 排序法         | 最佳 | 平均     | 最壞     |
-|----------------|------|----------|----------|
-| Insertion Sort | O(n) | O(n²)    | O(n²)    |
-| Quick Sort     | O(n log n) | O(n log n) | O(n²)    |
-| Merge Sort     | O(n log n) | O(n log n) | O(n log n) |
-| Heap Sort      | O(n log n) | O(n log n) | O(n log n) |
-| Composite Sort | O(n) / O(n log n) | O(n log n) | O(n log n) |
+| 排序法 | 最佳情況 | 平均情況 | 最壞情況 |
+|---|---|---|---|
+| Insertion Sort | O(n) | O(n²) | O(n²) |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) |
+| Heap Sort | O(n log n) | O(n log n) | O(n log n) |
+| Composite Sort | O(n log n) | O(n log n) | O(n log n) |
 
-- **Insertion Sort**：當資料是反向時，時間複雜度最差是 O(n²)。
-- **Quick Sort**：正常是 O(n log n)，如果選 pivot 不佳，最壞情況會退化成 O(n²)；因此本程式使用三數取中減少這種狀況。
-- **Merge Sort**：無論資料如何，時間複雜度都是 O(n log n)。
-- **Heap Sort**：時間複雜度一直是 O(n log n)，不太受資料排列影響。
-- **Composite Sort**：根據資料量自動選擇排序法，平均能有 O(n log n) 表現。
+- Insertion Sort 在資料接近排序完成時具有較佳效率，但在反向排列情況下會退化為 O(n²)。
+- Quick Sort 在平均情況下具有良好效能，但若 pivot 選擇不佳，仍可能退化為 O(n²)。
+- Merge Sort 的時間複雜度穩定維持在 O(n log n)。
+- Heap Sort 的效能較不易受到輸入資料排列方式影響。
+- Composite Sort 結合不同排序法的特性，以提升不同資料規模下的排序表現。
+
+---
 
 ### 空間複雜度比較
 
-| 排序法         | 空間複雜度 |
-|----------------|------------|
-| Insertion Sort | O(1)       |
-| Quick Sort     | O(log n)   |
-| Merge Sort     | O(n)       |
-| Heap Sort      | O(1)       |
-| Composite Sort | O(n)       |
+| 排序法 | 空間複雜度 |
+|---|---|
+| Insertion Sort | O(1) |
+| Quick Sort | O(log n) |
+| Merge Sort | O(n) |
+| Heap Sort | O(1) |
+| Composite Sort | O(n) |
 
-- **Merge Sort**：需要額外 O(n) 空間來合併（臨時陣列）。
-- **Heap Sort**、**Insertion Sort**：屬於 in-place 排序，額外需求空間極少。
+- Merge Sort 需要額外 O(n) 空間作為合併時的暫存陣列。
+- Heap Sort 與 Insertion Sort 屬於 in-place sorting，因此額外空間需求較低。
 
 ---
+
 ## 測試與驗證
 
-### 正確性驗證
+### Correctness Test
 
-- 執行排序前，先測試以下情境：
-  - 空陣列
-  - 單一元素
-  - 逆序
-  - 重複元素
-  - 隨機排列
-- 排序結果會與 C++ 標準 sort 函式結果比對，完全一致才算正確。
+程式會先進行 Correctness Test，測試以下情況：
 
----
+- 空陣列
+- 單一元素
+- 逆序排列
+- 重複元素
+- 隨機排列
 
-### Worst-case 測試
-
-- **Insertion Sort**：用反向排列（n, n-1, ..., 1）做最壞情境測試。
-- **Merge Sort**：用特殊函式 `mwRec()` 產生最壞情境，增加合併比較次數。
-- **Quick Sort、Heap Sort**：直接用多組隨機資料，取最大耗時近似最壞情境，重複次數為 `rt = max(10, 10000 / n)`。
+排序完成後，結果會與 C++ 標準函式 `sort()` 的結果進行比對，確認排序正確性。
 
 ---
 
-### Average-case 測試
+### Worst-case Test
 
-- 使用多組隨機排列資料，計算平均排序時間。
+- Insertion Sort 使用反向排列資料作為 worst-case 測試。
+- Merge Sort 使用 `mwRec()` 產生特殊資料排列，以增加 Merge 過程中的比較次數。
+- Quick Sort 與 Heap Sort 使用多組隨機資料，並取其中較高耗時作為近似 worst-case 觀察值。
+
+---
+
+### Average-case Test
+
+使用多組隨機排列資料進行測試，並計算平均排序時間。
 
 ---
 
 ### 計時方法
 
-- 使用 `chrono::high_resolution_clock` 進行高精度計時（單位：微秒）。
-- 為減少誤差，自動重複排序次數，直到總耗時超過 100,000 微秒。
+本程式使用 `chrono::high_resolution_clock` 進行高精度計時，時間單位為微秒（microseconds）。
+
+為降低短時間量測誤差，程式會自動增加重複執行次數，直到總測試時間超過 100,000 微秒，再計算平均耗時。
 
 ---
 
 ### 效能比較
 
-- 每種排序法都會根據最壞情境與平均情境結果進行效能比較，找出各自適合的情境。
+本專題會針對各排序演算法的 Worst-case 與 Average-case 表現進行比較，以分析不同排序法在各種資料情況下的效能差異。
 
 ---
 
-### 結論
+## 結論
 
-本專題成功實作五種排序演算法，並完成：
+本專題成功實作並測試多種排序演算法，包含：
 
-- Correctness Testing
+- Correctness Test
 - Worst-case Analysis
 - Average-case Analysis
-- Performance Measurement
+- Performance Comparison
 
 實驗結果顯示：
 
 - Insertion Sort 適合小型資料
-- Quick Sort 平均效能最佳
-- Merge Sort 效能最穩定
-- Heap Sort 不易受到輸入資料影響
-
-此外，Composite Sort 可根據資料量選擇不同排序法，在小型資料與大型資料間取得更好的平衡。
+- Quick Sort 在平均情況下具有良好效能
+- Merge Sort 具有穩定的時間複雜度表現
+- Heap Sort 較不易受到輸入資料排列影響
+- Composite Sort 能結合不同排序法的優點
 
 ---
 
 ## 申論及開發報告
 
-本專題除了實作排序演算法外，也深入理解：
+透過本題目，除了實作各種排序演算法，也加深了以下觀念：
 
-1. Divide and Conquer  
-2. Heap Data Structure  
-3. 時間複雜度分析  
-4. Worst-case Generation  
-5. 高精度計時方法  
+- 分治法（Divide and Conquer）
+- Heap 結構運用
+- 時間與空間複雜度分析
+- Worst-case 測資設計
+- 高精度計時技巧
 
-在實作過程中，較具挑戰性的部分包括：
+實作過程中的主要挑戰包括：
 
-- Median-of-Three pivot 選擇
+- Median-of-Three pivot selection
 - Iterative Merge Sort 設計
-- Merge Sort Worst-case 生成
+- Merge Sort 特殊測資產生
 - 計時誤差控制
 
-此外，也發現理論複雜度與實際執行結果仍可能受到：
+此外，實驗結果也顯示，排序效能除了受到演算法本身影響外，也會受到編譯器最佳化、CPU Cache、記憶體存取方式與輸入資料排列方式影響。
 
-- Compiler Optimization
-- CPU Cache
-- 記憶體存取方式
-- 資料排列方式
-
-等因素影響。
-
-透過本專題，更深入理解：
-
-- 各排序法的適用情境
-- 理論與實際效能差異
-- 混合式排序策略的重要性
+透過本次實作，對排序演算法與程式效能分析有更深入的理解。
