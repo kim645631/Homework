@@ -80,7 +80,7 @@ Heap Sort 會先將資料整理成 Max Heap，再進行排序。
 
 1. 將所有元素建構成 Max Heap
 2. 取出堆頂元素（最大值）並放置至陣列尾端
-3. 將 Heap 大小減 1，並重新調整 Heap 結構（heapify）
+3. 將 Heap 大小減 1，並重新調整 Heap 結構
 4. 重複步驟 2 至 3，直到排序完成
 
 透過反覆將最大值移至陣列尾端，最終完成排序。
@@ -478,6 +478,75 @@ int main() {
 
 ---
 
+### 效能實驗結果
+
+下表為實際測試資料（單位：微秒）：
+
+| n    | Algorithm       | Data Kind   | Microseconds | Trials |
+|------|-----------------|-------------|--------------|--------|
+| 500  | Insertion Sort  | worst       | 3680.944     | 64     |
+| 500  | Insertion Sort  | average     | 2322.332     | 21     |
+| 500  | Quick Sort      | worst       | 250.905      | 1024   |
+| 500  | Quick Sort      | average     | 195.169      | 21     |
+| 500  | Merge Sort      | worst       | 469.889      | 512    |
+| 500  | Merge Sort      | average     | 317.856      | 21     |
+| 500  | Heap Sort       | worst       | 626.263      | 256    |
+| 500  | Heap Sort       | average     | 560.689      | 21     |
+| 500  | Composite Sort  | worst       | 395.663      | 512    |
+| 500  | Composite Sort  | average     | 319.426      | 21     |
+| 1000 | Insertion Sort  | worst       | 15679.163    | 16     |
+| 1000 | Insertion Sort  | average     | 9384.032     | 11     |
+| 1000 | Quick Sort      | worst       | 409.291      | 512    |
+| 1000 | Quick Sort      | average     | 381.249      | 11     |
+| 1000 | Merge Sort      | worst       | 770.983      | 256    |
+| 1000 | Merge Sort      | average     | 682.466      | 11     |
+| 1000 | Heap Sort       | worst       | 1327.406     | 128    |
+| 1000 | Heap Sort       | average     | 1237.367     | 11     |
+| 1000 | Composite Sort  | worst       | 949.805      | 256    |
+| 1000 | Composite Sort  | average     | 733.944      | 11     |
+| 2000 | Insertion Sort  | worst       | 63533.400    | 4      |
+| 2000 | Insertion Sort  | average     | 34689.420    | 11     |
+| 2000 | Quick Sort      | worst       | 945.939      | 128    |
+| 2000 | Quick Sort      | average     | 847.318      | 11     |
+| 2000 | Merge Sort      | worst       | 1739.652     | 128    |
+| 2000 | Merge Sort      | average     | 1565.903     | 11     |
+| 2000 | Heap Sort       | worst       | 3282.272     | 64     |
+| 2000 | Heap Sort       | average     | 2879.865     | 11     |
+| 2000 | Composite Sort  | worst       | 2119.083     | 128    |
+| 2000 | Composite Sort  | average     | 1653.427     | 11     |
+| 3000 | Insertion Sort  | worst       | 164849.600   | 2      |
+| 3000 | Insertion Sort  | average     | 85672.714    | 11     |
+| 3000 | Quick Sort      | worst       | 1673.370     | 128    |
+| 3000 | Quick Sort      | average     | 1334.315     | 11     |
+| 3000 | Merge Sort      | worst       | 2874.472     | 64     |
+| 3000 | Merge Sort      | average     | 2458.762     | 11     |
+| 3000 | Heap Sort       | worst       | 4639.072     | 32     |
+| 3000 | Heap Sort       | average     | 4316.699     | 11     |
+| 3000 | Composite Sort  | worst       | 3215.666     | 64     |
+| 3000 | Composite Sort  | average     | 2497.614     | 11     |
+| 4000 | Insertion Sort  | worst       | 248773.100   | 1      |
+| 4000 | Insertion Sort  | average     | 144907.245   | 11     |
+| 4000 | Quick Sort      | worst       | 2039.888     | 64     |
+| 4000 | Quick Sort      | average     | 1837.369     | 11     |
+| 4000 | Merge Sort      | worst       | 3918.433     | 64     |
+| 4000 | Merge Sort      | average     | 3398.106     | 11     |
+| 4000 | Heap Sort       | worst       | 7664.944     | 32     |
+| 4000 | Heap Sort       | average     | 6717.890     | 11     |
+| 4000 | Composite Sort  | worst       | 4307.919     | 64     |
+| 4000 | Composite Sort  | average     | 3558.382     | 11     |
+| 5000 | Insertion Sort  | worst       | 464855.700   | 1      |
+| 5000 | Insertion Sort  | average     | 235604.282   | 11     |
+| 5000 | Quick Sort      | worst       | 2694.577     | 64     |
+| 5000 | Quick Sort      | average     | 2496.567     | 11     |
+| 5000 | Merge Sort      | worst       | 5098.462     | 32     |
+| 5000 | Merge Sort      | average     | 4621.575     | 11     |
+| 5000 | Heap Sort       | worst       | 9798.306     | 16     |
+| 5000 | Heap Sort       | average     | 8283.291     | 11     |
+| 5000 | Composite Sort  | worst       | 5415.750     | 32     |
+| 5000 | Composite Sort  | average     | 4846.522     | 11     |
+
+---
+
 ## 測試與驗證
 
 ### Correctness Test
@@ -543,21 +612,20 @@ int main() {
 
 ## 申論及開發報告
 
-透過本題目，除了實作各種排序演算法，也加深了以下觀念：
+本次作業透過實作多種排序演算法，不僅加深了理論知識的理解，也體驗演算法在真實資料與效能測試下的差異。
 
-- 分治法（Divide and Conquer）
-- Heap 結構運用
-- 時間與空間複雜度分析
-- Worst-case 測資設計
-- 高精度計時技巧
+### 1. 理論與實作差異
 
-實作過程中的主要挑戰包括：
+雖然理論上能掌握各排序法的時間與空間複雜度，但實作時發現：
+- 如 Quick Sort 的三取中法有效降低最壞狀況發生率。
+- Composite Sort 根據資料量切換排序法，能明顯提升效能。
+- Merge Sort 改用迭代方式，可減少遞迴開銷。
 
-- Median-of-Three pivot selection
-- Iterative Merge Sort 設計
-- Merge Sort 特殊測資產生
-- 計時誤差控制
 
-此外，實驗結果也顯示，排序效能除了受到演算法本身影響外，也會受到編譯器最佳化、CPU Cache、記憶體存取方式與輸入資料排列方式影響。
+### 2. 完整測試驗證
 
-透過本次實作，對排序演算法與程式效能分析有更深入的理解。
+設計了多組測資，從空陣列、單元素到 Worst-case、Average-case 與特殊測資，並用高精度計時器多次量測，確保測試結果正確。
+
+### 3. 實驗發現與優化
+
+在資料量較小的情況下，Insertion Sort 受到較低常數開銷的優勢，表現反而優於理論複雜度較低的演算法；當資料規模增大，分治類與堆積排序的優勢才明顯展現。此外，也加深了如何讓演算法根據輸入特徵調整的認知。
