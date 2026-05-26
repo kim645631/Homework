@@ -546,6 +546,21 @@ int main() {
 | 5000 | Composite Sort  | average     | 4846.522     | 11     |
 
 ---
+### 效能比較圖表
+
+#### 1. 各排序法平均情況（移除 Insertion Sort）
+
+![Average Case (Excluding Insertion Sort)](image1)
+
+#### 2. 各排序法最壞情況
+
+![Worst Case Performance](image2)
+
+#### 3. 各排序法平均情況（包含 Insertion Sort）
+
+![Average Case Performance](image3)
+
+---
 
 ## 測試與驗證
 
