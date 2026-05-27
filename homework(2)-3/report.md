@@ -550,15 +550,15 @@ int main() {
 
 #### 1. 各排序法平均情況（移除 Insertion Sort）
 
-![Average Case (Excluding Insertion Sort)](image1)
+![Average Case (Excluding Insertion Sort)](src/c.png)
 
 #### 2. 各排序法最壞情況
 
-![Worst Case Performance](image2)
+![Worst Case Performance](src/b.png)
 
 #### 3. 各排序法平均情況（包含 Insertion Sort）
 
-![Average Case Performance](image3)
+![Average Case Performance](src/a.png)
 
 ---
 
